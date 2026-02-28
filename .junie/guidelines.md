@@ -1,4 +1,75 @@
 <laravel-boost-guidelines>
+=== .ai/architecture rules ===
+
+# Arquitectura del Proyecto
+
+## Actions
+
+Toda lógica de negocio va en Actions invocables.
+Ubicación: `app/Actions/`
+- Clase final con método `__invoke()`
+- Recibe un DTO como argumento
+- Retorna el resultado de la operación
+
+## DTOs
+
+Ubicación: `app/DTOs/`
+- Clases readonly
+- Solo propiedades públicas tipadas
+
+## Form Requests
+
+Cada FormRequest incluye un método `toDto()` que construye y devuelve el DTO correspondiente.
+
+## Controladores
+
+Los controladores son finales y nunca contienen lógica de negocio.
+- Invocables (`__invoke()`) para acciones específicas que no son CRUD
+- Resource (index, store, show, update, destroy) para CRUD
+
+El flujo siempre es: Request → FormRequest valida → toDto() → Controller pasa DTO a Action → Action ejecuta.
+
+=== .ai/forbidden rules ===
+
+# Prohibiciones
+
+## Seguridad crítica
+
+- NUNCA leer, mostrar ni acceder al archivo .env (usar .env.example como referencia)
+- NUNCA ejecutar comandos git de escritura (commit, push, merge, rebase, reset)
+- NUNCA ejecutar migraciones destructivas sin aprobación explícita
+- NUNCA exponer credenciales, tokens ni secrets en código o logs
+
+## Código
+
+- No instalar paquetes sin mi aprobación explícita
+- No usar dd(), dump(), var_dump() ni ray()
+- No usar env() fuera de archivos de config
+- No modificar archivos de configuración sin justificación
+- No usar query raw SQL sin justificación
+- No usar Facades cuando se puede inyectar
+
+=== .ai/testing rules ===
+
+# Testing
+
+## Framework
+
+Usar Pest PHP siempre. Nunca PHPUnit.
+
+## Estructura
+
+- tests/Architecture/ → Arch tests
+- tests/Feature/{Dominio}/ → Tests de flujo completo
+- tests/Unit/Actions/ → Tests de Actions aisladas
+
+## Convenciones
+
+- Nombres descriptivos con `it()`: `it('creates a user with valid data')`
+- Un test, una aserción (o aserciones relacionadas)
+- Usar factories para datos de prueba
+- Arch tests en tests/Architecture/ArchTest.php
+
 === foundation rules ===
 
 # Laravel Boost Guidelines
@@ -22,6 +93,7 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - laravel/sail (SAIL) - v1
 - pestphp/pest (PEST) - v4
 - phpunit/phpunit (PHPUNIT) - v12
+- rector/rector (RECTOR) - v2
 - @inertiajs/react (INERTIA_REACT) - v2
 - react (REACT) - v19
 - tailwindcss (TAILWINDCSS) - v4
@@ -38,6 +110,7 @@ This project has domain-specific skills available. You MUST activate the relevan
 - `inertia-react-development` — Develops Inertia.js v2 React client-side applications. Activates when creating React pages, forms, or navigation; using &lt;Link&gt;, &lt;Form&gt;, useForm, or router; working with deferred props, prefetching, or polling; or when user mentions React with Inertia, React pages, React forms, or React navigation.
 - `tailwindcss-development` — Styles applications using Tailwind CSS v4 utilities. Activates when adding styles, restyling components, working with gradients, spacing, layout, flex, grid, responsive design, dark mode, colors, typography, or borders; or when the user mentions CSS, styling, classes, Tailwind, restyle, hero section, cards, buttons, or any visual/UI changes.
 - `developing-with-fortify` — Laravel Fortify headless authentication backend development. Activate when implementing authentication features including login, registration, password reset, email verification, two-factor authentication (2FA/TOTP), profile updates, headless auth, authentication scaffolding, or auth guards in Laravel applications.
+- `conventional-commits` — Generar mensajes de commit siguiendo Conventional Commits. Usar cuando el usuario pida un mensaje de commit, commit message o similar.
 
 ## Conventions
 
@@ -268,8 +341,7 @@ Wayfinder generates TypeScript functions for Laravel routes. Import from `@/acti
 
 # Laravel Pint Code Formatter
 
-- If you have modified any PHP files, you must run `vendor/bin/pint --dirty --format agent` before finalizing changes to ensure your code matches the project's expected style.
-- Do not run `vendor/bin/pint --test --format agent`, simply run `vendor/bin/pint --format agent` to fix any formatting issues.
+- No ejecutar `pint` directamente. Usar `composer quality` que ejecuta Rector + Pint + PHPStan en el orden correcto.
 
 === pest/core rules ===
 
