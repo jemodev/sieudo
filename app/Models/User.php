@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -19,9 +20,17 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'dni',
         'name',
+        'surname',
+        'gender',
         'email',
         'password',
+        'email_verified_at',
+        'phone',
+        'login_attempt',
+        'recovery_attempt',
+        'remember_token',
     ];
 
     /**
@@ -48,5 +57,11 @@ class User extends Authenticatable
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
         ];
+    }
+
+    public function fullName(): Attribute
+    {
+        return Attribute::make()
+            ->get(fn () => "{$this->name} {$this->surname}");
     }
 }
