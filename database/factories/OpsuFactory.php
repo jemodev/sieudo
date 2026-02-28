@@ -1,11 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use App\Models\Opsu;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Carbon;
 
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Opsu>
+ */
 class OpsuFactory extends Factory
 {
     protected $model = Opsu::class;
@@ -13,24 +17,24 @@ class OpsuFactory extends Factory
     public function definition(): array
     {
         return [
-            'cedula' => $this->faker->word(),
-            'apellidos' => $this->faker->word(),
-            'nombres' => $this->faker->word(),
-            'sexo' => $this->faker->word(),
-            'fecha_nac' => $this->faker->word(),
-            'codigo_nat' => $this->faker->word(),
-            'codigo_tit' => $this->faker->word(),
-            'fecha_grado' => $this->faker->word(),
-            'libro' => $this->faker->word(),
-            'folio' => $this->faker->word(),
-            'nucleo_id' => $this->faker->randomNumber(),
-            'promedio' => $this->faker->word(),
-            'ubicacion' => $this->faker->word(),
-            'mencion' => $this->faker->word(),
-            'telefono' => $this->faker->word(),
-            'correo' => $this->faker->word(),
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
+            'cedula' => fake()->word(),
+            'apellidos' => fake()->word(),
+            'nombres' => fake()->word(),
+            'sexo' => fake()->word(),
+            'fecha_nac' => fake()->word(),
+            'codigo_nat' => fake()->word(),
+            'codigo_tit' => fake()->word(),
+            'fecha_grado' => fake()->word(),
+            'libro' => fake()->word(),
+            'folio' => fake()->word(),
+            'nucleo_id' => fake()->randomNumber(),
+            'promedio' => fake()->word(),
+            'ubicacion' => fake()->word(),
+            'mencion' => fake()->word(),
+            'telefono' => fake()->word(),
+            'correo' => fake()->word(),
+            'created_at' => \Illuminate\Support\Facades\Date::now(),
+            'updated_at' => \Illuminate\Support\Facades\Date::now(),
         ];
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -59,7 +61,8 @@ class User extends Authenticatable
         ];
     }
 
-    public function fullName(): Attribute
+    /** @return Attribute<non-falsy-string, never> */
+    protected function fullName(): Attribute
     {
         return Attribute::make()
             ->get(fn () => "{$this->name} {$this->surname}");

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
 use App\Models\Question;
@@ -9,35 +11,35 @@ class QuestionSeeder extends Seeder
 {
     public function run(): void
     {
-        Question::create([
+        Question::query()->create([
             'question' => '¿Cuál es el nombre de su mascota?',
         ]);
 
-        Question::create([
+        Question::query()->create([
             'question' => '¿Cuál es su carro favorito?',
         ]);
 
-        Question::create([
+        Question::query()->create([
             'question' => '¿Cuál es el nombre de su primer jefe?',
         ]);
 
-        Question::create([
+        Question::query()->create([
             'question' => '¿En qué año nació su madre?',
         ]);
 
-        Question::create([
+        Question::query()->create([
             'question' => '¿Cuál fue el lugar de nacimiento de su padre?',
         ]);
 
-        Question::create([
+        Question::query()->create([
             'question' => '¿Cuál es su equipo deportivo favorito?',
         ]);
 
-        Question::create([
+        Question::query()->create([
             'question' => '¿Cuál es su comida favorita?',
         ]);
 
-        Question::create([
+        Question::query()->create([
             'question' => '¿Cuál fue su asignatura favorita?',
         ]);
     }

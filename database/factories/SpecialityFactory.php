@@ -1,11 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use App\Models\Speciality;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Carbon;
 
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Speciality>
+ */
 class SpecialityFactory extends Factory
 {
     protected $model = Speciality::class;
@@ -13,14 +17,14 @@ class SpecialityFactory extends Factory
     public function definition(): array
     {
         return [
-            'code' => $this->faker->word(),
-            'new_code' => $this->faker->word(),
-            'name' => $this->faker->name(),
-            'title' => $this->faker->word(),
-            'type' => $this->faker->randomNumber(),
-            'health_type' => $this->faker->word(),
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
+            'code' => fake()->word(),
+            'new_code' => fake()->word(),
+            'name' => fake()->name(),
+            'title' => fake()->word(),
+            'type' => fake()->randomNumber(),
+            'health_type' => fake()->word(),
+            'created_at' => \Illuminate\Support\Facades\Date::now(),
+            'updated_at' => \Illuminate\Support\Facades\Date::now(),
         ];
     }
 }

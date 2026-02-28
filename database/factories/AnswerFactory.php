@@ -1,13 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use App\Models\Answer;
 use App\Models\Question;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Carbon;
 
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Answer>
+ */
 class AnswerFactory extends Factory
 {
     protected $model = Answer::class;
@@ -15,9 +19,9 @@ class AnswerFactory extends Factory
     public function definition(): array
     {
         return [
-            'answer' => $this->faker->word(),
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
+            'answer' => fake()->word(),
+            'created_at' => \Illuminate\Support\Facades\Date::now(),
+            'updated_at' => \Illuminate\Support\Facades\Date::now(),
 
             'user_id' => User::factory(),
             'question_id' => Question::factory(),
