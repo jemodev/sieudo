@@ -29,7 +29,15 @@ export default function Register({ questions }: Props) {
     const [maxReachedStep, setMaxReachedStep] = useState<StepNumber>(1);
 
     const step1Form = useForm<Step1Values>({ resolver: standardSchemaResolver(step1Schema), mode: 'onChange' });
-    const step2Form = useForm<Step2Values>({ resolver: standardSchemaResolver(step2Schema), mode: 'onChange' });
+    const step2Form = useForm<Step2Values>({
+        resolver: standardSchemaResolver(step2Schema),
+        mode: 'onTouched',
+        defaultValues: {
+            q1_answer: '',
+            q2_answer: '',
+            q3_answer: '',
+        },
+    });
 
     const currentStepNumber: StepNumber =
         step === 'step2' ? 2 : step === 'step3' ? 3 : step === 'step4' ? 4 : 1;
@@ -57,6 +65,9 @@ export default function Register({ questions }: Props) {
             gender: opsu.sexo as 'M' | 'F',
             email: opsu.correo ?? '',
             phone: opsu.telefono ?? '',
+            q1_answer: '',
+            q2_answer: '',
+            q3_answer: '',
         });
         setMaxReachedStep((prev) => Math.max(prev, 2) as StepNumber);
         setStep('step2');

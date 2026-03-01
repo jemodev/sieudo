@@ -2,10 +2,9 @@ import type { ComponentProps } from 'react';
 import { Controller, useFormState, useWatch } from 'react-hook-form';
 import type { UseFormReturn } from 'react-hook-form';
 
-import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
     Select,
     SelectContent,
@@ -14,6 +13,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
+import { cn } from '@/lib/utils';
 import type { Step2Values } from '@/schemas/register';
 
 import type { OpsuData, Question } from './types';
@@ -31,7 +31,7 @@ export function StepTwo({
     onBack: () => void;
     onSubmit: ComponentProps<'form'>['onSubmit'];
 }) {
-    const { isValid, isSubmitting } = useFormState({ control: form.control });
+    const { isSubmitting } = useFormState({ control: form.control });
 
     const q1Id = useWatch({ control: form.control, name: 'q1_id' });
     const q1Answer = useWatch({ control: form.control, name: 'q1_answer' });
@@ -48,26 +48,26 @@ export function StepTwo({
         <form onSubmit={onSubmit} className="flex flex-col gap-6">
             {/* Fila 1: datos OPSU (read-only) + género */}
             <div className="grid grid-cols-4 gap-4">
-                <div className="grid gap-2">
-                    <Label>Cédula</Label>
+                <Field>
+                    <FieldLabel>Cédula</FieldLabel>
                     <Input value={opsuData.dni} readOnly className="bg-muted" />
-                </div>
-                <div className="grid gap-2">
-                    <Label>Nombres</Label>
+                </Field>
+                <Field>
+                    <FieldLabel>Nombres</FieldLabel>
                     <Input value={opsuData.nombres} readOnly className="bg-muted" />
-                </div>
-                <div className="grid gap-2">
-                    <Label>Apellidos</Label>
+                </Field>
+                <Field>
+                    <FieldLabel>Apellidos</FieldLabel>
                     <Input value={opsuData.apellidos} readOnly className="bg-muted" />
-                </div>
-                <div className="grid gap-2">
-                    <Label htmlFor="gender">Género</Label>
-                    <Controller
-                        name="gender"
-                        control={form.control}
-                        render={({ field }) => (
+                </Field>
+                <Controller
+                    name="gender"
+                    control={form.control}
+                    render={({ field, fieldState }) => (
+                        <Field data-invalid={fieldState.invalid}>
+                            <FieldLabel htmlFor="gender">Género</FieldLabel>
                             <Select value={field.value} onValueChange={field.onChange}>
-                                <SelectTrigger id="gender">
+                                <SelectTrigger id="gender" aria-invalid={fieldState.invalid}>
                                     <SelectValue placeholder="Seleccione..." />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -75,170 +75,230 @@ export function StepTwo({
                                     <SelectItem value="M">Masculino</SelectItem>
                                 </SelectContent>
                             </Select>
-                        )}
-                    />
-                    <InputError message={form.formState.errors.gender?.message} />
-                </div>
+                            <FieldError errors={[fieldState.error]} />
+                        </Field>
+                    )}
+                />
             </div>
 
             {/* Fila 2: contacto y contraseñas */}
             <div className="grid grid-cols-4 gap-4">
-                <div className="grid gap-2">
-                    <Label htmlFor="email">Correo electrónico</Label>
-                    <Input
-                        id="email"
-                        type="email"
-                        placeholder="correo@ejemplo.com"
-                        {...form.register('email')}
-                    />
-                    <InputError message={form.formState.errors.email?.message} />
-                </div>
-                <div className="grid gap-2">
-                    <Label htmlFor="phone">Teléfono</Label>
-                    <Input
-                        id="phone"
-                        type="text"
-                        placeholder="04141234567"
-                        {...form.register('phone')}
-                    />
-                    <InputError message={form.formState.errors.phone?.message} />
-                </div>
-                <div className="grid gap-2">
-                    <Label htmlFor="password">Contraseña</Label>
-                    <Input
-                        id="password"
-                        type="password"
-                        placeholder="Contraseña"
-                        {...form.register('password')}
-                    />
-                    <InputError message={form.formState.errors.password?.message} />
-                </div>
-                <div className="grid gap-2">
-                    <Label htmlFor="password_confirmation">Confirmar contraseña</Label>
-                    <Input
-                        id="password_confirmation"
-                        type="password"
-                        placeholder="Confirmar contraseña"
-                        {...form.register('password_confirmation')}
-                    />
-                    <InputError
-                        message={form.formState.errors.password_confirmation?.message}
-                    />
-                </div>
+                <Controller
+                    name="email"
+                    control={form.control}
+                    render={({ field, fieldState }) => (
+                        <Field data-invalid={fieldState.invalid}>
+                            <FieldLabel htmlFor="email">Correo electrónico</FieldLabel>
+                            <Input
+                                {...field}
+                                id="email"
+                                type="email"
+                                placeholder="correo@ejemplo.com"
+                                aria-invalid={fieldState.invalid}
+                            />
+                            <FieldError errors={[fieldState.error]} />
+                        </Field>
+                    )}
+                />
+                <Controller
+                    name="phone"
+                    control={form.control}
+                    render={({ field, fieldState }) => (
+                        <Field data-invalid={fieldState.invalid}>
+                            <FieldLabel htmlFor="phone">Teléfono</FieldLabel>
+                            <Input
+                                {...field}
+                                id="phone"
+                                type="text"
+                                placeholder="04141234567"
+                                aria-invalid={fieldState.invalid}
+                            />
+                            <FieldError errors={[fieldState.error]} />
+                        </Field>
+                    )}
+                />
+                <Controller
+                    name="password"
+                    control={form.control}
+                    render={({ field, fieldState }) => (
+                        <Field data-invalid={fieldState.invalid}>
+                            <FieldLabel htmlFor="password">Contraseña</FieldLabel>
+                            <Input
+                                {...field}
+                                id="password"
+                                type="password"
+                                placeholder="Contraseña"
+                                aria-invalid={fieldState.invalid}
+                            />
+                            <FieldError errors={[fieldState.error]} />
+                        </Field>
+                    )}
+                />
+                <Controller
+                    name="password_confirmation"
+                    control={form.control}
+                    render={({ field, fieldState }) => (
+                        <Field data-invalid={fieldState.invalid}>
+                            <FieldLabel htmlFor="password_confirmation">
+                                Confirmar contraseña
+                            </FieldLabel>
+                            <Input
+                                {...field}
+                                id="password_confirmation"
+                                type="password"
+                                placeholder="Confirmar contraseña"
+                                aria-invalid={fieldState.invalid}
+                            />
+                            <FieldError errors={[fieldState.error]} />
+                        </Field>
+                    )}
+                />
             </div>
 
             {/* Preguntas de seguridad: 3 columnas, cada una con su pregunta y respuesta */}
             <div className="grid grid-cols-3 gap-4">
                 {/* Columna 1 */}
-                <div className="grid gap-2 self-start">
-                    <Label>Pregunta de seguridad 1</Label>
+                <div className="flex flex-col gap-3 self-start">
                     <Controller
                         name="q1_id"
                         control={form.control}
-                        render={({ field }) => (
-                            <Select
-                                value={field.value?.toString()}
-                                onValueChange={(v) => {
-                                    field.onChange(Number(v));
-                                    form.resetField('q1_answer');
-                                    form.resetField('q2_id');
-                                    form.resetField('q2_answer');
-                                    form.resetField('q3_id');
-                                    form.resetField('q3_answer');
-                                }}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Seleccione una pregunta..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {questions.map((q) => (
-                                        <SelectItem key={q.id} value={q.id.toString()}>
-                                            {q.question}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid={fieldState.invalid}>
+                                <FieldLabel>Pregunta de seguridad 1</FieldLabel>
+                                <Select
+                                    value={field.value?.toString()}
+                                    onValueChange={(v) => {
+                                        field.onChange(Number(v));
+                                        form.resetField('q1_answer');
+                                        form.resetField('q2_id');
+                                        form.resetField('q2_answer');
+                                        form.resetField('q3_id');
+                                        form.resetField('q3_answer');
+                                    }}
+                                >
+                                    <SelectTrigger aria-invalid={fieldState.invalid}>
+                                        <SelectValue placeholder="Seleccione una pregunta..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {questions.map((q) => (
+                                            <SelectItem key={q.id} value={q.id.toString()}>
+                                                {q.question}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
                         )}
                     />
-                    <InputError message={form.formState.errors.q1_id?.message} />
-                    <Label>Respuesta 1</Label>
-                    <Input placeholder="Su respuesta" {...form.register('q1_answer')} />
-                    <InputError message={form.formState.errors.q1_answer?.message} />
+                    <Controller
+                        name="q1_answer"
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid={fieldState.invalid}>
+                                <FieldLabel>Respuesta 1</FieldLabel>
+                                <Input
+                                    {...field}
+                                    placeholder="Su respuesta"
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
+                        )}
+                    />
                 </div>
 
                 {/* Columna 2 */}
-                <div className="grid gap-2 self-start">
-                    <Label>Pregunta de seguridad 2</Label>
+                <div className={cn('flex flex-col gap-3 self-start', !q2Enabled && 'pointer-events-none opacity-50')}>
                     <Controller
                         name="q2_id"
                         control={form.control}
-                        render={({ field }) => (
-                            <Select
-                                value={field.value?.toString()}
-                                onValueChange={(v) => {
-                                    field.onChange(Number(v));
-                                    form.resetField('q2_answer');
-                                    form.resetField('q3_id');
-                                    form.resetField('q3_answer');
-                                }}
-                                disabled={!q2Enabled}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Seleccione una pregunta..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {availableQ2.map((q) => (
-                                        <SelectItem key={q.id} value={q.id.toString()}>
-                                            {q.question}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid={fieldState.invalid}>
+                                <FieldLabel>Pregunta de seguridad 2</FieldLabel>
+                                <Select
+                                    value={field.value?.toString()}
+                                    onValueChange={(v) => {
+                                        field.onChange(Number(v));
+                                        form.resetField('q2_answer');
+                                        form.resetField('q3_id');
+                                        form.resetField('q3_answer');
+                                    }}
+                                >
+                                    <SelectTrigger aria-invalid={fieldState.invalid}>
+                                        <SelectValue placeholder="Seleccione una pregunta..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {availableQ2.map((q) => (
+                                            <SelectItem key={q.id} value={q.id.toString()}>
+                                                {q.question}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
                         )}
                     />
-                    <InputError message={form.formState.errors.q2_id?.message} />
-                    <Label>Respuesta 2</Label>
-                    <Input
-                        placeholder="Su respuesta"
-                        disabled={!q2Enabled}
-                        {...form.register('q2_answer')}
+                    <Controller
+                        name="q2_answer"
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid={fieldState.invalid}>
+                                <FieldLabel>Respuesta 2</FieldLabel>
+                                <Input
+                                    {...field}
+                                    placeholder="Su respuesta"
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
+                        )}
                     />
-                    <InputError message={form.formState.errors.q2_answer?.message} />
                 </div>
 
                 {/* Columna 3 */}
-                <div className="grid gap-2 self-start">
-                    <Label>Pregunta de seguridad 3</Label>
+                <div className={cn('flex flex-col gap-3 self-start', !q3Enabled && 'pointer-events-none opacity-50')}>
                     <Controller
                         name="q3_id"
                         control={form.control}
-                        render={({ field }) => (
-                            <Select
-                                value={field.value?.toString()}
-                                onValueChange={(v) => field.onChange(Number(v))}
-                                disabled={!q3Enabled}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Seleccione una pregunta..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {availableQ3.map((q) => (
-                                        <SelectItem key={q.id} value={q.id.toString()}>
-                                            {q.question}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid={fieldState.invalid}>
+                                <FieldLabel>Pregunta de seguridad 3</FieldLabel>
+                                <Select
+                                    value={field.value?.toString()}
+                                    onValueChange={(v) => field.onChange(Number(v))}
+                                >
+                                    <SelectTrigger aria-invalid={fieldState.invalid}>
+                                        <SelectValue placeholder="Seleccione una pregunta..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {availableQ3.map((q) => (
+                                            <SelectItem key={q.id} value={q.id.toString()}>
+                                                {q.question}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
                         )}
                     />
-                    <InputError message={form.formState.errors.q3_id?.message} />
-                    <Label>Respuesta 3</Label>
-                    <Input
-                        placeholder="Su respuesta"
-                        disabled={!q3Enabled}
-                        {...form.register('q3_answer')}
+                    <Controller
+                        name="q3_answer"
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid={fieldState.invalid}>
+                                <FieldLabel>Respuesta 3</FieldLabel>
+                                <Input
+                                    {...field}
+                                    placeholder="Su respuesta"
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
+                        )}
                     />
-                    <InputError message={form.formState.errors.q3_answer?.message} />
                 </div>
             </div>
 
@@ -249,7 +309,7 @@ export function StepTwo({
                 <Button
                     type="submit"
                     className="flex-1"
-                    disabled={!isValid || isSubmitting}
+                    disabled={isSubmitting}
                 >
                     {isSubmitting && <Spinner />}
                     Siguiente
