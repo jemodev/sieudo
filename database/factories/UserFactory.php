@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -24,10 +26,16 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
+            'dni' => fake()->unique()->numerify('########'),
+            'name' => fake()->firstName(),
+            'surname' => fake()->lastName(),
+            'gender' => fake()->randomElement(['F', 'M']),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
+            'phone' => '04141234567',
+            'login_attempt' => 0,
+            'recovery_attempt' => 0,
             'remember_token' => Str::random(10),
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,

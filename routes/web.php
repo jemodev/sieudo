@@ -1,10 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
+use App\Http\Controllers\Auth\ValidateRegistrationController;
+use App\Http\Controllers\Auth\VerifyDniController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
-Route::inertia('/', 'welcome', [
+Route::middleware('guest')->group(function () {
+    Route::post('/register/verify-dni', VerifyDniController::class)->name('register.verify-dni');
+    Route::post('/register/validate', ValidateRegistrationController::class)->name('register.validate');
+});
+
+Route::inertia('/', 'auth/login', [
     'canRegister' => Features::enabled(Features::registration()),
+    'canResetPassword' => Features::resetPasswords(),
 ])->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
