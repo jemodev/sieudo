@@ -1,8 +1,8 @@
 import { Form, Head } from '@inertiajs/react';
-import InputError from '@/components/input-error';
+
 import { Button } from '@/components/ui/button';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import AuthLayout from '@/layouts/auth-layout';
 import { update } from '@/routes/password';
@@ -10,15 +10,27 @@ import { update } from '@/routes/password';
 type Props = {
     token: string;
     email: string;
+    recoveryUser?: { dni: string; name: string } | null;
 };
 
-export default function ResetPassword({ token, email }: Props) {
+export default function ResetPassword({ token, email, recoveryUser }: Props) {
     return (
         <AuthLayout
-            title="Reset password"
-            description="Please enter your new password below"
+            title="Restablecer contraseña"
+            description="Ingrese su nueva contraseña a continuación"
+            maxWidth="max-w-lg"
         >
-            <Head title="Reset password" />
+            <Head title="Restablecer contraseña" />
+
+            {recoveryUser && (
+                <div className="mb-4 rounded-md border px-4 py-3 text-sm">
+                    <span className="font-medium">
+                        Cédula: {recoveryUser.dni}
+                    </span>
+                    {' — '}
+                    <span>{recoveryUser.name}</span>
+                </div>
+            )}
 
             <Form
                 {...update.form()}
@@ -27,8 +39,10 @@ export default function ResetPassword({ token, email }: Props) {
             >
                 {({ processing, errors }) => (
                     <div className="grid gap-6">
-                        <div className="grid gap-2">
-                            <Label htmlFor="email">Email</Label>
+                        <Field>
+                            <FieldLabel htmlFor="email">
+                                Correo electrónico
+                            </FieldLabel>
                             <Input
                                 id="email"
                                 type="email"
@@ -38,14 +52,19 @@ export default function ResetPassword({ token, email }: Props) {
                                 className="mt-1 block w-full"
                                 readOnly
                             />
-                            <InputError
-                                message={errors.email}
-                                className="mt-2"
+                            <FieldError
+                                errors={[
+                                    errors.email
+                                        ? { message: errors.email }
+                                        : undefined,
+                                ]}
                             />
-                        </div>
+                        </Field>
 
-                        <div className="grid gap-2">
-                            <Label htmlFor="password">Password</Label>
+                        <Field>
+                            <FieldLabel htmlFor="password">
+                                Nueva contraseña
+                            </FieldLabel>
                             <Input
                                 id="password"
                                 type="password"
@@ -53,28 +72,40 @@ export default function ResetPassword({ token, email }: Props) {
                                 autoComplete="new-password"
                                 className="mt-1 block w-full"
                                 autoFocus
-                                placeholder="Password"
+                                placeholder="Contraseña"
                             />
-                            <InputError message={errors.password} />
-                        </div>
+                            <FieldError
+                                errors={[
+                                    errors.password
+                                        ? { message: errors.password }
+                                        : undefined,
+                                ]}
+                            />
+                        </Field>
 
-                        <div className="grid gap-2">
-                            <Label htmlFor="password_confirmation">
-                                Confirm password
-                            </Label>
+                        <Field>
+                            <FieldLabel htmlFor="password_confirmation">
+                                Confirmar contraseña
+                            </FieldLabel>
                             <Input
                                 id="password_confirmation"
                                 type="password"
                                 name="password_confirmation"
                                 autoComplete="new-password"
                                 className="mt-1 block w-full"
-                                placeholder="Confirm password"
+                                placeholder="Confirmar contraseña"
                             />
-                            <InputError
-                                message={errors.password_confirmation}
-                                className="mt-2"
+                            <FieldError
+                                errors={[
+                                    errors.password_confirmation
+                                        ? {
+                                              message:
+                                                  errors.password_confirmation,
+                                          }
+                                        : undefined,
+                                ]}
                             />
-                        </div>
+                        </Field>
 
                         <Button
                             type="submit"
@@ -83,7 +114,7 @@ export default function ResetPassword({ token, email }: Props) {
                             data-test="reset-password-button"
                         >
                             {processing && <Spinner />}
-                            Reset password
+                            Restablecer contraseña
                         </Button>
                     </div>
                 )}

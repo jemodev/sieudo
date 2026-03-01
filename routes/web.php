@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Auth\RecoverPasswordController;
 use App\Http\Controllers\Auth\ValidateRegistrationController;
+use App\Http\Controllers\Auth\VerifyAnswersController;
 use App\Http\Controllers\Auth\VerifyDniController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
@@ -10,6 +12,9 @@ use Laravel\Fortify\Features;
 Route::middleware('guest')->group(function () {
     Route::post('/register/verify-dni', VerifyDniController::class)->name('register.verify-dni');
     Route::post('/register/validate', ValidateRegistrationController::class)->name('register.validate');
+
+    Route::post('/forgot-password/verify-dni', RecoverPasswordController::class)->name('password.verify-dni');
+    Route::post('/forgot-password/verify-answers', VerifyAnswersController::class)->name('password.verify-answers');
 });
 
 Route::inertia('/', 'auth/login', [

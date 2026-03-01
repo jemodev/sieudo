@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Fortify;
 
 use App\Concerns\PasswordValidationRules;
@@ -20,10 +22,13 @@ class ResetUserPassword implements ResetsUserPasswords
     {
         Validator::make($input, [
             'password' => $this->passwordRules(),
+        ], [
+            'password.confirmed' => 'Las contraseñas no coinciden.',
         ])->validate();
 
         $user->forceFill([
             'password' => $input['password'],
+            'recovery_attempt' => 0,
         ])->save();
     }
 }
