@@ -199,8 +199,8 @@ export default function Register({ questions }: Props) {
     const [isConfirming, setIsConfirming] = useState(false);
     const [maxReachedStep, setMaxReachedStep] = useState<StepNumber>(1);
 
-    const step1Form = useForm<Step1Values>({ resolver: zodResolver(step1Schema) });
-    const step2Form = useForm<Step2Values>({ resolver: zodResolver(step2Schema) });
+    const step1Form = useForm<Step1Values>({ resolver: zodResolver(step1Schema), mode: 'onChange' });
+    const step2Form = useForm<Step2Values>({ resolver: zodResolver(step2Schema), mode: 'onChange' });
 
     // eslint-disable-next-line react-hooks/incompatible-library
     const q1Id = step2Form.watch('q1_id');
@@ -346,7 +346,7 @@ export default function Register({ questions }: Props) {
                             <Button
                                 type="submit"
                                 className="flex-1"
-                                disabled={step1Form.formState.isSubmitting}
+                                disabled={!step1Form.formState.isValid || step1Form.formState.isSubmitting}
                             >
                                 {step1Form.formState.isSubmitting && <Spinner />}
                                 Siguiente
@@ -596,7 +596,7 @@ export default function Register({ questions }: Props) {
                         <Button
                             type="submit"
                             className="flex-1"
-                            disabled={step2Form.formState.isSubmitting}
+                            disabled={!step2Form.formState.isValid || step2Form.formState.isSubmitting}
                         >
                             {step2Form.formState.isSubmitting && <Spinner />}
                             Siguiente
