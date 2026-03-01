@@ -1,197 +1,26 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Head, router } from '@inertiajs/react';
-import { AlertCircle, Check, CheckCircle } from 'lucide-react';
-import { Fragment, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import { z } from 'zod';
+import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
+import { Head } from '@inertiajs/react';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 
-import InputError from '@/components/input-error';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import { Spinner } from '@/components/ui/spinner';
 import AuthLayout from '@/layouts/auth-layout';
-import { cn } from '@/lib/utils';
-import { home } from '@/routes';
 import { store, validate, verifyDni } from '@/routes/register';
+import { step1Schema, step2Schema } from '@/schemas/register';
+import type { Step1Values, Step2Values } from '@/schemas/register';
+
+import { AlreadyRegistered } from './register/already-registered';
+import { postJson } from './register/helpers';
+import { NotFound } from './register/not-found';
+import { StepFour } from './register/step-four';
+import { StepOne } from './register/step-one';
+import { StepThree } from './register/step-three';
+import { StepTwo } from './register/step-two';
+import type { JsonErrorResponse, OpsuData, Question, StepNumber, WizardStep } from './register/types';
+import { WizardNav } from './register/wizard-nav';
 
 type Props = {
-    questions: { id: number; question: string }[];
+    questions: Question[];
 };
-
-type WizardStep =
-    | 'step1'
-    | 'not_found'
-    | 'already_registered'
-    | 'step2'
-    | 'step3'
-    | 'step4';
-
-type StepNumber = 1 | 2 | 3 | 4;
-
-type OpsuData = {
-    dni: string;
-    nombres: string;
-    apellidos: string;
-    sexo: string;
-    correo: string;
-    telefono: string;
-};
-
-type JsonErrorResponse = {
-    errors?: Record<string, string[]>;
-    message?: string;
-};
-
-const WIZARD_STEPS: { number: StepNumber; label: string }[] = [
-    { number: 1, label: 'Verificación' },
-    { number: 2, label: 'Datos' },
-    { number: 3, label: 'Confirmación' },
-    { number: 4, label: 'Completado' },
-];
-
-const step1Schema = z.object({
-    dni: z.string().regex(/^\d{6,12}$/, 'Debe tener entre 6 y 12 dígitos'),
-});
-
-const step2Schema = z
-    .object({
-        gender: z.enum(['M', 'F'], { message: 'Seleccione un género' }),
-        email: z.string().email('Correo electrónico inválido'),
-        password: z.string().min(8, 'Mínimo 8 caracteres').max(20, 'Máximo 20 caracteres'),
-        password_confirmation: z.string(),
-        phone: z
-            .string()
-            .regex(
-                /^(0414|0424|0416|0426|0412|0422)-?\d{7}$/,
-                'Teléfono venezolano inválido',
-            ),
-        q1_id: z.number({ message: 'Seleccione una pregunta' }).int().positive(),
-        q1_answer: z.string().min(1, 'Ingrese su respuesta'),
-        q2_id: z.number({ message: 'Seleccione una pregunta' }).int().positive(),
-        q2_answer: z.string().min(1, 'Ingrese su respuesta'),
-        q3_id: z.number({ message: 'Seleccione una pregunta' }).int().positive(),
-        q3_answer: z.string().min(1, 'Ingrese su respuesta'),
-    })
-    .refine((d) => d.password === d.password_confirmation, {
-        message: 'Las contraseñas no coinciden',
-        path: ['password_confirmation'],
-    });
-
-type Step1Values = z.infer<typeof step1Schema>;
-type Step2Values = z.infer<typeof step2Schema>;
-
-function getCsrfToken(): string {
-    return decodeURIComponent(
-        document.cookie
-            .split('; ')
-            .find((row) => row.startsWith('XSRF-TOKEN='))
-            ?.split('=')[1] ?? '',
-    );
-}
-
-async function postJson(url: string, body: unknown): Promise<{ ok: boolean; data: unknown }> {
-    const res = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-XSRF-TOKEN': getCsrfToken(),
-            Accept: 'application/json',
-        },
-        body: JSON.stringify(body),
-    });
-
-    const text = await res.text();
-    const data: unknown = text ? JSON.parse(text) : null;
-
-    return { ok: res.ok, data };
-}
-
-function WizardNav({
-    currentStep,
-    maxReachedStep,
-    onNavigate,
-}: {
-    currentStep: StepNumber;
-    maxReachedStep: StepNumber;
-    onNavigate: (step: StepNumber) => void;
-}) {
-    return (
-        <nav className="mb-8 flex items-start">
-            {WIZARD_STEPS.map((wizardStep, index) => {
-                const isCompleted = wizardStep.number < currentStep;
-                const isActive = wizardStep.number === currentStep;
-                const isReachable =
-                    wizardStep.number <= maxReachedStep &&
-                    wizardStep.number !== currentStep &&
-                    currentStep !== 4 &&
-                    wizardStep.number !== 4;
-                const showConnector = index < WIZARD_STEPS.length - 1;
-
-                return (
-                    <Fragment key={wizardStep.number}>
-                        <button
-                            type="button"
-                            onClick={() => isReachable && onNavigate(wizardStep.number)}
-                            disabled={!isReachable}
-                            className={cn(
-                                'flex flex-col items-center gap-2',
-                                isReachable ? 'cursor-pointer' : 'cursor-default',
-                            )}
-                        >
-                            <div
-                                className={cn(
-                                    'flex h-9 w-9 items-center justify-center rounded-full border-2 text-sm font-semibold transition-all',
-                                    isCompleted &&
-                                        'border-primary bg-primary text-primary-foreground',
-                                    isActive &&
-                                        'border-primary bg-primary text-primary-foreground shadow-[0_0_0_4px] shadow-primary/20',
-                                    !isCompleted &&
-                                        !isActive &&
-                                        isReachable &&
-                                        'border-primary/60 bg-background text-primary',
-                                    !isCompleted &&
-                                        !isActive &&
-                                        !isReachable &&
-                                        'border-border bg-muted text-muted-foreground',
-                                )}
-                            >
-                                {isCompleted ? <Check className="size-4" /> : wizardStep.number}
-                            </div>
-                            <span
-                                className={cn(
-                                    'text-xs font-medium',
-                                    isActive && 'text-foreground',
-                                    isCompleted && 'text-primary',
-                                    !isActive && !isCompleted && 'text-muted-foreground',
-                                )}
-                            >
-                                {wizardStep.label}
-                            </span>
-                        </button>
-
-                        {showConnector && (
-                            <div
-                                className={cn(
-                                    'mt-4 h-0.5 flex-1 rounded-full transition-colors',
-                                    isCompleted ? 'bg-primary' : 'bg-border',
-                                )}
-                            />
-                        )}
-                    </Fragment>
-                );
-            })}
-        </nav>
-    );
-}
 
 export default function Register({ questions }: Props) {
     const [step, setStep] = useState<WizardStep>('step1');
@@ -199,23 +28,8 @@ export default function Register({ questions }: Props) {
     const [isConfirming, setIsConfirming] = useState(false);
     const [maxReachedStep, setMaxReachedStep] = useState<StepNumber>(1);
 
-    const step1Form = useForm<Step1Values>({ resolver: zodResolver(step1Schema), mode: 'onChange' });
-    const step2Form = useForm<Step2Values>({ resolver: zodResolver(step2Schema), mode: 'onChange' });
-
-    // eslint-disable-next-line react-hooks/incompatible-library
-    const q1Id = step2Form.watch('q1_id');
-    // eslint-disable-next-line react-hooks/incompatible-library
-    const q1Answer = step2Form.watch('q1_answer');
-    // eslint-disable-next-line react-hooks/incompatible-library
-    const q2Id = step2Form.watch('q2_id');
-    // eslint-disable-next-line react-hooks/incompatible-library
-    const q2Answer = step2Form.watch('q2_answer');
-
-    const q2Enabled = !!q1Id && !!q1Answer?.trim();
-    const q3Enabled = !!q2Id && !!q2Answer?.trim();
-
-    const availableQ2 = questions.filter((q) => q.id !== q1Id);
-    const availableQ3 = questions.filter((q) => q.id !== q1Id && q.id !== q2Id);
+    const step1Form = useForm<Step1Values>({ resolver: standardSchemaResolver(step1Schema), mode: 'onChange' });
+    const step2Form = useForm<Step2Values>({ resolver: standardSchemaResolver(step2Schema), mode: 'onChange' });
 
     const currentStepNumber: StepNumber =
         step === 'step2' ? 2 : step === 'step3' ? 3 : step === 'step4' ? 4 : 1;
@@ -232,11 +46,8 @@ export default function Register({ questions }: Props) {
         if (!ok) {
             const err = data as JsonErrorResponse;
             const type = err.errors?.type?.[0];
-            if (type === 'not_found') {
-                setStep('not_found');
-            } else if (type === 'already_registered') {
-                setStep('already_registered');
-            }
+            if (type === 'not_found') setStep('not_found');
+            else if (type === 'already_registered') setStep('already_registered');
             return;
         }
 
@@ -266,9 +77,7 @@ export default function Register({ questions }: Props) {
     });
 
     const handleConfirm = async () => {
-        if (!opsuData) {
-            return;
-        }
+        if (!opsuData) return;
 
         setIsConfirming(true);
 
@@ -319,383 +128,29 @@ export default function Register({ questions }: Props) {
                 onNavigate={navigateToStep}
             />
 
-            {step === 'step1' && (
-                <div className="mx-auto w-full max-w-sm">
-                    <form onSubmit={handleStep1} className="flex flex-col gap-6">
-                        <div className="grid gap-2">
-                            <Label htmlFor="dni">Número de cédula</Label>
-                            <Input
-                                id="dni"
-                                type="text"
-                                autoFocus
-                                tabIndex={1}
-                                placeholder="12345678"
-                                {...step1Form.register('dni')}
-                            />
-                            <InputError message={step1Form.formState.errors.dni?.message} />
-                        </div>
-                        <div className="flex gap-2">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                className="flex-1"
-                                onClick={() => router.visit(home())}
-                            >
-                                Cancelar
-                            </Button>
-                            <Button
-                                type="submit"
-                                className="flex-1"
-                                disabled={!step1Form.formState.isValid || step1Form.formState.isSubmitting}
-                            >
-                                {step1Form.formState.isSubmitting && <Spinner />}
-                                Siguiente
-                            </Button>
-                        </div>
-                    </form>
-                </div>
-            )}
-
-            {step === 'not_found' && (
-                <div className="mx-auto w-full max-w-sm flex flex-col gap-4">
-                    <Alert variant="destructive">
-                        <AlertCircle className="size-4" />
-                        <AlertTitle>Cédula no encontrada</AlertTitle>
-                        <AlertDescription>
-                            La cédula ingresada no corresponde a ningún egresado registrado en el
-                            sistema.
-                        </AlertDescription>
-                    </Alert>
-                    <Button onClick={() => router.visit(home())}>Aceptar</Button>
-                </div>
-            )}
-
-            {step === 'already_registered' && (
-                <div className="mx-auto w-full max-w-sm flex flex-col gap-4">
-                    <Alert variant="destructive">
-                        <AlertCircle className="size-4" />
-                        <AlertTitle>Cuenta existente</AlertTitle>
-                        <AlertDescription>
-                            Ya existe una cuenta registrada con esta cédula. Si olvidó su
-                            contraseña, puede recuperarla desde la pantalla de inicio.
-                        </AlertDescription>
-                    </Alert>
-                    <Button onClick={() => router.visit(home())}>Aceptar</Button>
-                </div>
-            )}
-
+            {step === 'step1' && <StepOne form={step1Form} onSubmit={handleStep1} />}
+            {step === 'not_found' && <NotFound />}
+            {step === 'already_registered' && <AlreadyRegistered />}
             {step === 'step2' && opsuData && (
-                <form onSubmit={handleStep2} className="flex flex-col gap-6">
-                    {/* Fila 1: datos OPSU (read-only) + género */}
-                    <div className="grid grid-cols-4 gap-4">
-                        <div className="grid gap-2">
-                            <Label>Cédula</Label>
-                            <Input value={opsuData.dni} readOnly className="bg-muted" />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label>Nombres</Label>
-                            <Input value={opsuData.nombres} readOnly className="bg-muted" />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label>Apellidos</Label>
-                            <Input value={opsuData.apellidos} readOnly className="bg-muted" />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="gender">Género</Label>
-                            <Controller
-                                name="gender"
-                                control={step2Form.control}
-                                render={({ field }) => (
-                                    <Select value={field.value} onValueChange={field.onChange}>
-                                        <SelectTrigger id="gender">
-                                            <SelectValue placeholder="Seleccione..." />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="F">Femenino</SelectItem>
-                                            <SelectItem value="M">Masculino</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                )}
-                            />
-                            <InputError message={step2Form.formState.errors.gender?.message} />
-                        </div>
-                    </div>
-
-                    {/* Fila 2: contacto y contraseñas */}
-                    <div className="grid grid-cols-4 gap-4">
-                        <div className="grid gap-2">
-                            <Label htmlFor="email">Correo electrónico</Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                placeholder="correo@ejemplo.com"
-                                {...step2Form.register('email')}
-                            />
-                            <InputError message={step2Form.formState.errors.email?.message} />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="phone">Teléfono</Label>
-                            <Input
-                                id="phone"
-                                type="text"
-                                placeholder="04141234567"
-                                {...step2Form.register('phone')}
-                            />
-                            <InputError message={step2Form.formState.errors.phone?.message} />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="password">Contraseña</Label>
-                            <Input
-                                id="password"
-                                type="password"
-                                placeholder="Contraseña"
-                                {...step2Form.register('password')}
-                            />
-                            <InputError message={step2Form.formState.errors.password?.message} />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="password_confirmation">Confirmar contraseña</Label>
-                            <Input
-                                id="password_confirmation"
-                                type="password"
-                                placeholder="Confirmar contraseña"
-                                {...step2Form.register('password_confirmation')}
-                            />
-                            <InputError
-                                message={
-                                    step2Form.formState.errors.password_confirmation?.message
-                                }
-                            />
-                        </div>
-                    </div>
-
-                    {/* Preguntas de seguridad: 3 columnas, cada una con su pregunta y respuesta */}
-                    <div className="grid grid-cols-3 gap-4">
-                        {/* Columna 1 */}
-                        <div className="grid gap-2 self-start">
-                            <Label>Pregunta de seguridad 1</Label>
-                            <Controller
-                                name="q1_id"
-                                control={step2Form.control}
-                                render={({ field }) => (
-                                    <Select
-                                        value={field.value?.toString()}
-                                        onValueChange={(v) => {
-                                            field.onChange(Number(v));
-                                            step2Form.resetField('q1_answer');
-                                            step2Form.resetField('q2_id');
-                                            step2Form.resetField('q2_answer');
-                                            step2Form.resetField('q3_id');
-                                            step2Form.resetField('q3_answer');
-                                        }}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Seleccione una pregunta..." />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {questions.map((q) => (
-                                                <SelectItem key={q.id} value={q.id.toString()}>
-                                                    {q.question}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                )}
-                            />
-                            <InputError message={step2Form.formState.errors.q1_id?.message} />
-                            <Label>Respuesta 1</Label>
-                            <Input placeholder="Su respuesta" {...step2Form.register('q1_answer')} />
-                            <InputError message={step2Form.formState.errors.q1_answer?.message} />
-                        </div>
-
-                        {/* Columna 2 */}
-                        <div className="grid gap-2 self-start">
-                            <Label>Pregunta de seguridad 2</Label>
-                            <Controller
-                                name="q2_id"
-                                control={step2Form.control}
-                                render={({ field }) => (
-                                    <Select
-                                        value={field.value?.toString()}
-                                        onValueChange={(v) => {
-                                            field.onChange(Number(v));
-                                            step2Form.resetField('q2_answer');
-                                            step2Form.resetField('q3_id');
-                                            step2Form.resetField('q3_answer');
-                                        }}
-                                        disabled={!q2Enabled}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Seleccione una pregunta..." />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {availableQ2.map((q) => (
-                                                <SelectItem key={q.id} value={q.id.toString()}>
-                                                    {q.question}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                )}
-                            />
-                            <InputError message={step2Form.formState.errors.q2_id?.message} />
-                            <Label>Respuesta 2</Label>
-                            <Input
-                                placeholder="Su respuesta"
-                                disabled={!q2Enabled}
-                                {...step2Form.register('q2_answer')}
-                            />
-                            <InputError message={step2Form.formState.errors.q2_answer?.message} />
-                        </div>
-
-                        {/* Columna 3 */}
-                        <div className="grid gap-2 self-start">
-                            <Label>Pregunta de seguridad 3</Label>
-                            <Controller
-                                name="q3_id"
-                                control={step2Form.control}
-                                render={({ field }) => (
-                                    <Select
-                                        value={field.value?.toString()}
-                                        onValueChange={(v) => field.onChange(Number(v))}
-                                        disabled={!q3Enabled}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Seleccione una pregunta..." />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {availableQ3.map((q) => (
-                                                <SelectItem key={q.id} value={q.id.toString()}>
-                                                    {q.question}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                )}
-                            />
-                            <InputError message={step2Form.formState.errors.q3_id?.message} />
-                            <Label>Respuesta 3</Label>
-                            <Input
-                                placeholder="Su respuesta"
-                                disabled={!q3Enabled}
-                                {...step2Form.register('q3_answer')}
-                            />
-                            <InputError message={step2Form.formState.errors.q3_answer?.message} />
-                        </div>
-                    </div>
-
-                    <div className="flex gap-2">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            className="flex-1"
-                            onClick={() => setStep('step1')}
-                        >
-                            Regresar
-                        </Button>
-                        <Button
-                            type="submit"
-                            className="flex-1"
-                            disabled={!step2Form.formState.isValid || step2Form.formState.isSubmitting}
-                        >
-                            {step2Form.formState.isSubmitting && <Spinner />}
-                            Siguiente
-                        </Button>
-                    </div>
-                </form>
+                <StepTwo
+                    form={step2Form}
+                    opsuData={opsuData}
+                    questions={questions}
+                    onBack={() => setStep('step1')}
+                    onSubmit={handleStep2}
+                />
             )}
-
             {step === 'step3' && opsuData && (
-                <div className="flex flex-col gap-6">
-                    <p className="text-sm text-muted-foreground">
-                        Verifique sus datos antes de confirmar el registro.
-                    </p>
-
-                    {/* Datos personales */}
-                    <div className="grid grid-cols-4 gap-4 rounded-md border p-4">
-                        {(
-                            [
-                                ['Cédula', opsuData.dni],
-                                ['Nombres', opsuData.nombres],
-                                ['Apellidos', opsuData.apellidos],
-                                [
-                                    'Género',
-                                    step2Form.getValues('gender') === 'F' ? 'Femenino' : 'Masculino',
-                                ],
-                            ] as [string, string][]
-                        ).map(([label, value]) => (
-                            <div key={label} className="grid gap-1">
-                                <span className="text-xs text-muted-foreground">{label}</span>
-                                <p className="text-sm font-medium">{value}</p>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Contacto */}
-                    <div className="grid grid-cols-4 gap-4 rounded-md border p-4">
-                        <div className="col-span-2 grid gap-1">
-                            <span className="text-xs text-muted-foreground">Correo electrónico</span>
-                            <p className="text-sm font-medium">{step2Form.getValues('email')}</p>
-                        </div>
-                        <div className="col-span-2 grid gap-1">
-                            <span className="text-xs text-muted-foreground">Teléfono</span>
-                            <p className="text-sm font-medium">{step2Form.getValues('phone')}</p>
-                        </div>
-                    </div>
-
-                    {/* Preguntas de seguridad */}
-                    <div className="grid grid-cols-3 gap-4 rounded-md border p-4">
-                        {(
-                            [
-                                ['Pregunta de seguridad 1', step2Form.getValues('q1_id')],
-                                ['Pregunta de seguridad 2', step2Form.getValues('q2_id')],
-                                ['Pregunta de seguridad 3', step2Form.getValues('q3_id')],
-                            ] as [string, number][]
-                        ).map(([label, id]) => (
-                            <div key={label} className="grid gap-1">
-                                <span className="text-xs text-muted-foreground">{label}</span>
-                                <p className="text-sm font-medium">
-                                    {questions.find((q) => q.id === id)?.question ?? '—'}
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className="flex gap-2">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            className="flex-1"
-                            onClick={() => setStep('step2')}
-                        >
-                            Regresar
-                        </Button>
-                        <Button
-                            type="button"
-                            className="flex-1"
-                            disabled={isConfirming}
-                            onClick={handleConfirm}
-                        >
-                            {isConfirming && <Spinner />}
-                            Confirmar
-                        </Button>
-                    </div>
-                </div>
+                <StepThree
+                    form={step2Form}
+                    opsuData={opsuData}
+                    questions={questions}
+                    isConfirming={isConfirming}
+                    onBack={() => setStep('step2')}
+                    onConfirm={handleConfirm}
+                />
             )}
-
-            {step === 'step4' && (
-                <div className="mx-auto w-full max-w-sm flex flex-col gap-4">
-                    <Alert>
-                        <CheckCircle className="size-4" />
-                        <AlertTitle>¡Registro exitoso!</AlertTitle>
-                        <AlertDescription>
-                            Su cuenta ha sido creada exitosamente. Ya puede iniciar sesión con sus
-                            credenciales.
-                        </AlertDescription>
-                    </Alert>
-                    <Button onClick={() => router.visit(home())}>Aceptar</Button>
-                </div>
-            )}
+            {step === 'step4' && <StepFour />}
         </AuthLayout>
     );
 }
