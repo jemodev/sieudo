@@ -23,11 +23,17 @@ final class RegisterGraduate
             'phone' => $data->phone,
         ]);
 
-        Answer::query()->insert([
-            ['user_id' => $user->id, 'question_id' => $data->q1Id, 'answer' => $data->q1Answer, 'created_at' => now(), 'updated_at' => now()],
-            ['user_id' => $user->id, 'question_id' => $data->q2Id, 'answer' => $data->q2Answer, 'created_at' => now(), 'updated_at' => now()],
-            ['user_id' => $user->id, 'question_id' => $data->q3Id, 'answer' => $data->q3Answer, 'created_at' => now(), 'updated_at' => now()],
-        ]);
+        foreach ([
+            [$data->q1Id, $data->q1Answer],
+            [$data->q2Id, $data->q2Answer],
+            [$data->q3Id, $data->q3Answer],
+        ] as [$questionId, $answer]) {
+            Answer::query()->create([
+                'user_id' => $user->id,
+                'question_id' => $questionId,
+                'answer' => $answer,
+            ]);
+        }
 
         return $user->fresh();
     }
