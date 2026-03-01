@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Laravel\Fortify\Features;
 
 return [
@@ -45,7 +47,7 @@ return [
     |
     */
 
-    'username' => 'email',
+    'username' => 'dni',
 
     'email' => 'email',
 
