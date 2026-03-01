@@ -204,7 +204,16 @@ export default function Register({ questions }: Props) {
 
     // eslint-disable-next-line react-hooks/incompatible-library
     const q1Id = step2Form.watch('q1_id');
+    // eslint-disable-next-line react-hooks/incompatible-library
+    const q1Answer = step2Form.watch('q1_answer');
+    // eslint-disable-next-line react-hooks/incompatible-library
     const q2Id = step2Form.watch('q2_id');
+    // eslint-disable-next-line react-hooks/incompatible-library
+    const q2Answer = step2Form.watch('q2_answer');
+
+    const q2Enabled = !!q1Id && !!q1Answer?.trim();
+    const q3Enabled = !!q2Id && !!q2Answer?.trim();
+
     const availableQ2 = questions.filter((q) => q.id !== q1Id);
     const availableQ3 = questions.filter((q) => q.id !== q1Id && q.id !== q2Id);
 
@@ -460,9 +469,10 @@ export default function Register({ questions }: Props) {
                         </div>
                     </div>
 
-                    {/* Filas 3–5: preguntas de seguridad */}
-                    <div className="grid grid-cols-4 gap-4">
-                        <div className="col-span-2 grid gap-2">
+                    {/* Preguntas de seguridad: 3 columnas, cada una con su pregunta y respuesta */}
+                    <div className="grid grid-cols-3 gap-4">
+                        {/* Columna 1 */}
+                        <div className="grid gap-2 self-start">
                             <Label>Pregunta de seguridad 1</Label>
                             <Controller
                                 name="q1_id"
@@ -472,8 +482,11 @@ export default function Register({ questions }: Props) {
                                         value={field.value?.toString()}
                                         onValueChange={(v) => {
                                             field.onChange(Number(v));
+                                            step2Form.resetField('q1_answer');
                                             step2Form.resetField('q2_id');
+                                            step2Form.resetField('q2_answer');
                                             step2Form.resetField('q3_id');
+                                            step2Form.resetField('q3_answer');
                                         }}
                                     >
                                         <SelectTrigger>
@@ -490,14 +503,13 @@ export default function Register({ questions }: Props) {
                                 )}
                             />
                             <InputError message={step2Form.formState.errors.q1_id?.message} />
-                        </div>
-                        <div className="col-span-2 grid gap-2">
                             <Label>Respuesta 1</Label>
-                            <Input placeholder="Respuesta" {...step2Form.register('q1_answer')} />
+                            <Input placeholder="Su respuesta" {...step2Form.register('q1_answer')} />
                             <InputError message={step2Form.formState.errors.q1_answer?.message} />
                         </div>
 
-                        <div className="col-span-2 grid gap-2">
+                        {/* Columna 2 */}
+                        <div className="grid gap-2 self-start">
                             <Label>Pregunta de seguridad 2</Label>
                             <Controller
                                 name="q2_id"
@@ -507,9 +519,11 @@ export default function Register({ questions }: Props) {
                                         value={field.value?.toString()}
                                         onValueChange={(v) => {
                                             field.onChange(Number(v));
+                                            step2Form.resetField('q2_answer');
                                             step2Form.resetField('q3_id');
+                                            step2Form.resetField('q3_answer');
                                         }}
-                                        disabled={!q1Id}
+                                        disabled={!q2Enabled}
                                     >
                                         <SelectTrigger>
                                             <SelectValue placeholder="Seleccione una pregunta..." />
@@ -525,18 +539,17 @@ export default function Register({ questions }: Props) {
                                 )}
                             />
                             <InputError message={step2Form.formState.errors.q2_id?.message} />
-                        </div>
-                        <div className="col-span-2 grid gap-2">
                             <Label>Respuesta 2</Label>
                             <Input
-                                placeholder="Respuesta"
-                                disabled={!q1Id}
+                                placeholder="Su respuesta"
+                                disabled={!q2Enabled}
                                 {...step2Form.register('q2_answer')}
                             />
                             <InputError message={step2Form.formState.errors.q2_answer?.message} />
                         </div>
 
-                        <div className="col-span-2 grid gap-2">
+                        {/* Columna 3 */}
+                        <div className="grid gap-2 self-start">
                             <Label>Pregunta de seguridad 3</Label>
                             <Controller
                                 name="q3_id"
@@ -545,7 +558,7 @@ export default function Register({ questions }: Props) {
                                     <Select
                                         value={field.value?.toString()}
                                         onValueChange={(v) => field.onChange(Number(v))}
-                                        disabled={!q2Id}
+                                        disabled={!q3Enabled}
                                     >
                                         <SelectTrigger>
                                             <SelectValue placeholder="Seleccione una pregunta..." />
@@ -561,12 +574,10 @@ export default function Register({ questions }: Props) {
                                 )}
                             />
                             <InputError message={step2Form.formState.errors.q3_id?.message} />
-                        </div>
-                        <div className="col-span-2 grid gap-2">
                             <Label>Respuesta 3</Label>
                             <Input
-                                placeholder="Respuesta"
-                                disabled={!q2Id}
+                                placeholder="Su respuesta"
+                                disabled={!q3Enabled}
                                 {...step2Form.register('q3_answer')}
                             />
                             <InputError message={step2Form.formState.errors.q3_answer?.message} />
