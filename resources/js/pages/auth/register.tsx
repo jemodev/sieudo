@@ -606,11 +606,13 @@ export default function Register({ questions }: Props) {
             )}
 
             {step === 'step3' && opsuData && (
-                <div className="mx-auto w-full max-w-sm flex flex-col gap-4">
+                <div className="flex flex-col gap-6">
                     <p className="text-sm text-muted-foreground">
                         Verifique sus datos antes de confirmar el registro.
                     </p>
-                    <div className="grid gap-2 rounded-md border p-4 text-sm">
+
+                    {/* Datos personales */}
+                    <div className="grid grid-cols-4 gap-4 rounded-md border p-4">
                         {(
                             [
                                 ['Cédula', opsuData.dni],
@@ -618,20 +620,47 @@ export default function Register({ questions }: Props) {
                                 ['Apellidos', opsuData.apellidos],
                                 [
                                     'Género',
-                                    step2Form.getValues('gender') === 'F'
-                                        ? 'Femenino'
-                                        : 'Masculino',
+                                    step2Form.getValues('gender') === 'F' ? 'Femenino' : 'Masculino',
                                 ],
-                                ['Correo', step2Form.getValues('email')],
-                                ['Teléfono', step2Form.getValues('phone')],
                             ] as [string, string][]
                         ).map(([label, value]) => (
-                            <div key={label} className="flex justify-between gap-4">
-                                <span className="text-muted-foreground">{label}</span>
-                                <span className="font-medium">{value}</span>
+                            <div key={label} className="grid gap-1">
+                                <span className="text-xs text-muted-foreground">{label}</span>
+                                <p className="text-sm font-medium">{value}</p>
                             </div>
                         ))}
                     </div>
+
+                    {/* Contacto */}
+                    <div className="grid grid-cols-4 gap-4 rounded-md border p-4">
+                        <div className="col-span-2 grid gap-1">
+                            <span className="text-xs text-muted-foreground">Correo electrónico</span>
+                            <p className="text-sm font-medium">{step2Form.getValues('email')}</p>
+                        </div>
+                        <div className="col-span-2 grid gap-1">
+                            <span className="text-xs text-muted-foreground">Teléfono</span>
+                            <p className="text-sm font-medium">{step2Form.getValues('phone')}</p>
+                        </div>
+                    </div>
+
+                    {/* Preguntas de seguridad */}
+                    <div className="grid grid-cols-3 gap-4 rounded-md border p-4">
+                        {(
+                            [
+                                ['Pregunta de seguridad 1', step2Form.getValues('q1_id')],
+                                ['Pregunta de seguridad 2', step2Form.getValues('q2_id')],
+                                ['Pregunta de seguridad 3', step2Form.getValues('q3_id')],
+                            ] as [string, number][]
+                        ).map(([label, id]) => (
+                            <div key={label} className="grid gap-1">
+                                <span className="text-xs text-muted-foreground">{label}</span>
+                                <p className="text-sm font-medium">
+                                    {questions.find((q) => q.id === id)?.question ?? '—'}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+
                     <div className="flex gap-2">
                         <Button
                             type="button"
