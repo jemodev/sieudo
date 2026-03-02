@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\GetGraduateSpecialities;
 use App\DTOs\GraduateSpecialitiesData;
+use App\Models\Application;
 use App\Models\SystemStatus;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -23,6 +24,14 @@ final class DashboardController extends Controller
             ),
             'systemStatus' => Inertia::defer(
                 fn () => SystemStatus::query()->latest()->first()->system_status ?? 1,
+            ),
+            'pendingApplicationSpecialityIds' => Inertia::defer(
+                fn () => Application::query()
+                    ->where('user_id', $request->user()->id)
+                    ->where('document_support', false)
+                    ->where('status', '0')
+                    ->pluck('speciality_id')
+                    ->all(),
             ),
         ]);
     }

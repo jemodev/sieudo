@@ -18,6 +18,7 @@ interface Speciality {
 interface Props {
     specialities: Speciality[];
     systemStatus: number;
+    pendingApplicationSpecialityIds: number[];
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -75,7 +76,7 @@ const documentosProcesados = [
     },
 ];
 
-export default function Dashboard({ specialities, systemStatus }: Props) {
+export default function Dashboard({ specialities, systemStatus, pendingApplicationSpecialityIds }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard">
@@ -131,8 +132,12 @@ export default function Dashboard({ specialities, systemStatus }: Props) {
                             </p>
                         </div>
                     </header>
-                    <Deferred data={['specialities', 'systemStatus']} fallback={<DocumentRequestSkeleton />}>
-                        <DocumentRequestSection specialities={specialities} systemStatus={systemStatus} />
+                    <Deferred data={['specialities', 'systemStatus', 'pendingApplicationSpecialityIds']} fallback={<DocumentRequestSkeleton />}>
+                        <DocumentRequestSection
+                            specialities={specialities}
+                            systemStatus={systemStatus}
+                            pendingApplicationSpecialityIds={pendingApplicationSpecialityIds}
+                        />
                     </Deferred>
                 </section>
 

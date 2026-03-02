@@ -1,6 +1,7 @@
 import { Head, useForm } from '@inertiajs/react';
-import { FileText } from 'lucide-react';
+import { CheckCircle2, FileText, ShoppingCart } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { store } from '@/actions/App/Http/Controllers/ApplicationController';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -69,6 +70,7 @@ export default function CreateWithoutSupport({ speciality, documentTypes, gradua
     );
 
     const total = selectedTypes.reduce((sum, dt) => sum + dt.price, 0);
+    const selectedCount = form.data.document_codes.length;
 
     const toggleCode = (code: string, checked: boolean) => {
         if (checked) {
@@ -83,6 +85,7 @@ export default function CreateWithoutSupport({ speciality, documentTypes, gradua
 
     const handleConfirm = () => {
         form.post(store(speciality.id).url, {
+            onSuccess: () => toast.success('Solicitud enviada correctamente.'),
             onFinish: () => setConfirmOpen(false),
         });
     };
@@ -93,6 +96,7 @@ export default function CreateWithoutSupport({ speciality, documentTypes, gradua
 
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto p-5">
                 <section className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+                    {/* Header */}
                     <header className="flex items-start gap-3.5 border-b border-border px-7 py-5">
                         <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                             <FileText className="h-4 w-4" />
@@ -146,7 +150,8 @@ export default function CreateWithoutSupport({ speciality, documentTypes, gradua
                                             return (
                                                 <TableRow
                                                     key={dt.id}
-                                                    className="cursor-pointer transition-colors hover:bg-muted/40"
+                                                    data-selected={isChecked}
+                                                    className="cursor-pointer transition-colors hover:bg-muted/40 data-[selected=true]:bg-primary/5 data-[selected=true]:hover:bg-primary/8"
                                                     onClick={() => toggleCode(dt.code, !isChecked)}
                                                 >
                                                     <TableCell className="px-7 py-4">
@@ -174,21 +179,35 @@ export default function CreateWithoutSupport({ speciality, documentTypes, gradua
                                 </Table>
                             </div>
 
+                            {/* Footer */}
                             <div className="flex items-center justify-between border-t border-border px-7 py-4">
-                                <div className="text-sm text-muted-foreground">
-                                    {form.data.document_codes.length === 0
-                                        ? 'Seleccione al menos un documento'
-                                        : `${form.data.document_codes.length} documento(s) seleccionado(s)`}
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                    {selectedCount > 0 ? (
+                                        <>
+                                            <ShoppingCart className="h-3.5 w-3.5 text-primary" />
+                                            <span>
+                                                <span className="font-semibold text-card-foreground">{selectedCount}</span>
+                                                {' '}documento{selectedCount !== 1 ? 's' : ''} seleccionado{selectedCount !== 1 ? 's' : ''}
+                                            </span>
+                                        </>
+                                    ) : (
+                                        'Seleccione al menos un documento'
+                                    )}
                                 </div>
                                 <div className="flex items-center gap-4">
-                                    {form.data.document_codes.length > 0 && (
-                                        <span className="font-mono text-sm font-semibold text-card-foreground">
-                                            Total: {formatPrice(total)}
-                                        </span>
+                                    {selectedCount > 0 && (
+                                        <div className="text-right">
+                                            <span className="block text-[0.6875rem] font-semibold uppercase tracking-[0.07em] text-muted-foreground">
+                                                Total
+                                            </span>
+                                            <span className="font-mono text-sm font-semibold text-card-foreground">
+                                                {formatPrice(total)}
+                                            </span>
+                                        </div>
                                     )}
                                     <button
                                         onClick={() => setConfirmOpen(true)}
-                                        disabled={form.data.document_codes.length === 0}
+                                        disabled={selectedCount === 0}
                                         className="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-40"
                                     >
                                         Confirmar solicitud
@@ -207,6 +226,7 @@ export default function CreateWithoutSupport({ speciality, documentTypes, gradua
                     </DialogHeader>
 
                     <div className="space-y-4 text-sm">
+                        {/* Graduate & speciality info */}
                         <div className="rounded-lg border border-border bg-muted/40 p-4 space-y-1.5">
                             <div className="flex justify-between gap-2">
                                 <span className="text-muted-foreground">Egresado</span>
@@ -222,14 +242,18 @@ export default function CreateWithoutSupport({ speciality, documentTypes, gradua
                             </div>
                         </div>
 
-                        <div className="space-y-1">
+                        {/* Document list */}
+                        <div className="space-y-1.5">
                             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                                 Documentos seleccionados
                             </p>
                             <div className="divide-y divide-border rounded-lg border border-border">
                                 {selectedTypes.map((dt) => (
-                                    <div key={dt.id} className="flex items-center justify-between px-3 py-2">
-                                        <span className="text-card-foreground">{dt.description}</span>
+                                    <div key={dt.id} className="flex items-center justify-between px-3 py-2.5">
+                                        <div className="flex items-center gap-2">
+                                            <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-primary/60" />
+                                            <span className="text-card-foreground">{dt.description}</span>
+                                        </div>
                                         <span className="font-mono text-xs text-muted-foreground">
                                             {formatPrice(dt.price)}
                                         </span>
@@ -238,8 +262,9 @@ export default function CreateWithoutSupport({ speciality, documentTypes, gradua
                             </div>
                         </div>
 
-                        <div className="flex items-center justify-between rounded-lg bg-primary/5 px-4 py-3">
-                            <span className="font-semibold text-card-foreground">Total</span>
+                        {/* Total */}
+                        <div className="flex items-center justify-between rounded-lg bg-primary/5 px-4 py-3 ring-1 ring-primary/10">
+                            <span className="font-semibold text-card-foreground">Total a pagar</span>
                             <span className="font-mono font-semibold text-card-foreground">
                                 {formatPrice(total)}
                             </span>

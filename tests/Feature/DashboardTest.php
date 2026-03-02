@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\Application;
 use App\Models\Opsu;
 use App\Models\Speciality;
 use App\Models\SystemStatus;
@@ -79,6 +80,40 @@ it('loads the latest systemStatus value', function () {
             ->component('dashboard')
             ->loadDeferredProps(fn (Assert $deferred) => $deferred
                 ->where('systemStatus', 2),
+            ),
+        );
+});
+
+it('returns empty pending application speciality ids when user has no applications', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->get(route('dashboard'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('dashboard')
+            ->loadDeferredProps(fn (Assert $deferred) => $deferred
+                ->where('pendingApplicationSpecialityIds', []),
+            ),
+        );
+});
+
+it('returns speciality id in pending list when user has active non-support application', function () {
+    $user = User::factory()->create();
+    $speciality = Speciality::factory()->create();
+    Application::factory()->create([
+        'user_id' => $user->id,
+        'speciality_id' => $speciality->id,
+        'document_support' => false,
+        'status' => '0',
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('dashboard'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('dashboard')
+            ->loadDeferredProps(fn (Assert $deferred) => $deferred
+                ->has('pendingApplicationSpecialityIds', 1)
+                ->where('pendingApplicationSpecialityIds.0', $speciality->id),
             ),
         );
 });
