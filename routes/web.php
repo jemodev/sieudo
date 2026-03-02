@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\Auth\RecoverPasswordController;
 use App\Http\Controllers\Auth\ValidateRegistrationController;
 use App\Http\Controllers\Auth\VerifyAnswersController;
@@ -25,6 +26,12 @@ Route::inertia('/', 'auth/login', [
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
+
+    Route::get('applications/without-support/{speciality}', [ApplicationController::class, 'create'])
+        ->name('applications.without-support.create');
+
+    Route::post('applications/without-support/{speciality}', [ApplicationController::class, 'store'])
+        ->name('applications.without-support.store');
 });
 
 require __DIR__.'/settings.php';

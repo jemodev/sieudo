@@ -1,4 +1,6 @@
+import { Link } from '@inertiajs/react';
 import { AlertTriangle, FileText } from 'lucide-react';
+import { create } from '@/actions/App/Http/Controllers/ApplicationController';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -99,12 +101,12 @@ export default function DocumentRequestSection({ specialities, systemStatus }: P
                                     </TableCell>
                                     <TableCell className="px-7 py-4 text-right">
                                         <div className="flex items-center justify-end gap-2">
-                                            <button
-                                                disabled={!isSystemNormal}
-                                                className="inline-flex h-8 items-center justify-center rounded-lg border border-border bg-background px-3.5 text-xs font-medium text-foreground/70 transition-colors hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+                                            <Link
+                                                href={create(speciality.id).url}
+                                                className={`inline-flex h-8 items-center justify-center rounded-lg border border-border bg-background px-3.5 text-xs font-medium text-foreground/70 transition-colors hover:bg-muted hover:text-foreground ${!isSystemNormal ? 'pointer-events-none opacity-40' : ''}`}
                                             >
                                                 Sin Soporte
-                                            </button>
+                                            </Link>
                                             <button
                                                 disabled={!isSystemNormal}
                                                 className="db-btn-primary inline-flex h-8 items-center justify-center rounded-lg bg-primary px-3.5 text-xs font-semibold text-primary-foreground transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-40"
