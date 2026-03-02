@@ -11,67 +11,67 @@ class CampusSeeder extends Seeder
 {
     public function run(): void
     {
-        Campus::create([
+        Campus::query()->create([
             'code' => '0',
             'description' => 'DESCONOCIDO',
         ]);
 
-        Campus::create([
+        Campus::query()->create([
             'code' => '20',
             'description' => 'SUCRE',
         ]);
 
-        Campus::create([
+        Campus::query()->create([
             'code' => '30',
             'description' => 'ANZOÁTEGUI',
         ]);
 
-        Campus::create([
+        Campus::query()->create([
             'code' => '31',
             'description' => 'ANZ.(ANACO)',
         ]);
 
-        Campus::create([
+        Campus::query()->create([
             'code' => '32',
             'description' => 'ANZ.(CANTAURA)',
         ]);
 
-        Campus::create([
+        Campus::query()->create([
             'code' => '40',
             'description' => 'MONAGAS',
         ]);
 
-        Campus::create([
+        Campus::query()->create([
             'code' => '50',
             'description' => 'BOLÍVAR',
         ]);
 
-        Campus::create([
+        Campus::query()->create([
             'code' => '52',
             'description' => 'BOLÍVAR (CAICARA)',
         ]);
 
-        Campus::create([
+        Campus::query()->create([
             'code' => '60',
             'description' => 'NUEVA ESPARTA',
         ]);
 
-        Campus::create([
+        Campus::query()->create([
             'code' => '70',
             'description' => 'SUCRE (PARIA)',
         ]);
 
-        Campus::create([
+        Campus::query()->create([
             'code' => '80',
             'description' => 'BOLÍVAR (UEPO)',
         ]);
 
-        Campus::create([
+        Campus::query()->create([
             'code' => '90',
             'description' => 'RECTORADO (CGCE)',
         ]);
 
-        Campus::create([
+        Campus::query()->create([
             'code' => 'T',
             'description' => 'TODOS LOS NUCLEOS',
         ]);

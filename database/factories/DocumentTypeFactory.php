@@ -1,11 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use App\Models\DocumentType;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Carbon;
 
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\DocumentType>
+ */
 class DocumentTypeFactory extends Factory
 {
     protected $model = DocumentType::class;
@@ -13,17 +17,17 @@ class DocumentTypeFactory extends Factory
     public function definition(): array
     {
         return [
-            'code' => $this->faker->word(),
-            'description' => $this->faker->text(),
-            'area' => $this->faker->word(),
-            'support' => $this->faker->boolean(),
-            'undergraduate_cost' => $this->faker->randomFloat(),
-            'graduate_cost' => $this->faker->randomFloat(),
-            'visible' => $this->faker->boolean(),
-            'document_type' => $this->faker->randomNumber(),
-            'observation' => $this->faker->word(),
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
+            'code' => fake()->word(),
+            'description' => fake()->text(),
+            'area' => fake()->word(),
+            'support' => fake()->boolean(),
+            'undergraduate_cost' => fake()->randomFloat(),
+            'graduate_cost' => fake()->randomFloat(),
+            'visible' => fake()->boolean(),
+            'document_type' => fake()->randomNumber(),
+            'observation' => fake()->word(),
+            'created_at' => \Illuminate\Support\Facades\Date::now(),
+            'updated_at' => \Illuminate\Support\Facades\Date::now(),
         ];
     }
 }

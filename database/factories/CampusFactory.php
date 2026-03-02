@@ -1,11 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use App\Models\Campus;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Carbon;
 
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Campus>
+ */
 class CampusFactory extends Factory
 {
     protected $model = Campus::class;
@@ -13,10 +17,10 @@ class CampusFactory extends Factory
     public function definition(): array
     {
         return [
-            'code' => $this->faker->word(),
-            'description' => $this->faker->text(),
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
+            'code' => fake()->word(),
+            'description' => fake()->text(),
+            'created_at' => \Illuminate\Support\Facades\Date::now(),
+            'updated_at' => \Illuminate\Support\Facades\Date::now(),
         ];
     }
 }
