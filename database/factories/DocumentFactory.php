@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Enums\DocumentStatus;
 use App\Models\Application;
 use App\Models\Document;
 use App\Models\DocumentType;
@@ -29,7 +30,7 @@ class DocumentFactory extends Factory
             'graduate_id' => fake()->numerify('########'),
             'specialty_code' => fake()->numerify('###'),
             'support' => false,
-            'status' => '0',
+            'status' => DocumentStatus::PendingPayment,
             'quantity' => '1',
             'document_application_position' => '01',
             'created_at' => Date::now(),

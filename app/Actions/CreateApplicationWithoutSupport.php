@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions;
 
 use App\DTOs\StoreApplicationData;
+use App\Enums\DocumentStatus;
 use App\Models\Application;
 use App\Models\DocumentType;
 use App\Models\SystemStatus;
@@ -65,7 +66,7 @@ final class CreateApplicationWithoutSupport
                     'graduate_id' => $data->graduateId,
                     'specialty_code' => $data->specialityNewCode,
                     'support' => false,
-                    'status' => '0',
+                    'status' => DocumentStatus::PendingPayment,
                     'quantity' => (string) $docCount,
                     'document_application_position' => str_pad((string) $pos, 2, '0', STR_PAD_LEFT),
                 ]);

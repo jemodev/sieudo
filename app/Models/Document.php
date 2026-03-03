@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\DocumentStatus;
 use Database\Factories\DocumentFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -51,6 +52,7 @@ final class Document extends Model
     {
         return [
             'support' => 'boolean',
+            'status' => DocumentStatus::class,
         ];
     }
 }
