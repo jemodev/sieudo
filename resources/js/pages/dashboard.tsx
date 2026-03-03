@@ -18,11 +18,15 @@ interface Speciality {
     health_type: string | null;
 }
 
+interface PendingApplications {
+    withoutSupport: number[];
+    withSupport: number[];
+}
+
 interface Props {
     specialities: Speciality[];
     systemStatus: number;
-    pendingApplicationSpecialityIds: number[];
-    pendingApplicationWithSupportSpecialityIds: number[];
+    pendingApplications: PendingApplications;
     applicationsInProcess: ApplicationInProcess[];
 }
 
@@ -71,7 +75,7 @@ const documentosProcesados = [
     },
 ];
 
-export default function Dashboard({ specialities, systemStatus, pendingApplicationSpecialityIds, pendingApplicationWithSupportSpecialityIds, applicationsInProcess }: Props) {
+export default function Dashboard({ specialities, systemStatus, pendingApplications, applicationsInProcess }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
@@ -93,24 +97,11 @@ export default function Dashboard({ specialities, systemStatus, pendingApplicati
                             </p>
                         </div>
                     </header>
-                    <Deferred
-                        data={[
-                            'specialities',
-                            'systemStatus',
-                            'pendingApplicationSpecialityIds',
-                            'pendingApplicationWithSupportSpecialityIds',
-                        ]}
-                        fallback={<DocumentRequestSkeleton />}
-                    >
+                    <Deferred data={['specialities', 'systemStatus', 'pendingApplications']} fallback={<DocumentRequestSkeleton />}>
                         <DocumentRequestSection
                             specialities={specialities}
                             systemStatus={systemStatus}
-                            pendingApplicationSpecialityIds={
-                                pendingApplicationSpecialityIds
-                            }
-                            pendingApplicationWithSupportSpecialityIds={
-                                pendingApplicationWithSupportSpecialityIds
-                            }
+                            pendingApplications={pendingApplications}
                         />
                     </Deferred>
                 </section>

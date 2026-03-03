@@ -21,11 +21,15 @@ interface Speciality {
     health_type: string | null;
 }
 
+interface PendingApplications {
+    withoutSupport: number[];
+    withSupport: number[];
+}
+
 interface Props {
     specialities: Speciality[];
     systemStatus: number;
-    pendingApplicationSpecialityIds: number[];
-    pendingApplicationWithSupportSpecialityIds: number[];
+    pendingApplications: PendingApplications;
 }
 
 const SYSTEM_STATUS_NORMAL = 1;
@@ -39,7 +43,7 @@ const specialityTypeBadge = (type: number) => {
     );
 }
 
-export default function DocumentRequestSection({ specialities, systemStatus, pendingApplicationSpecialityIds, pendingApplicationWithSupportSpecialityIds }: Props) {
+export default function DocumentRequestSection({ specialities, systemStatus, pendingApplications }: Props) {
     const isSystemNormal = systemStatus === SYSTEM_STATUS_NORMAL;
 
     return (
@@ -91,9 +95,9 @@ export default function DocumentRequestSection({ specialities, systemStatus, pen
                         </TableHeader>
                         <TableBody className="divide-y divide-border">
                             {specialities.map((speciality) => {
-                                const hasPendingApplication = pendingApplicationSpecialityIds.includes(speciality.id);
+                                const hasPendingApplication = pendingApplications.withoutSupport.includes(speciality.id);
                                 const isSinSoporteDisabled = !isSystemNormal || hasPendingApplication;
-                                const hasConSoportePending = pendingApplicationWithSupportSpecialityIds.includes(speciality.id);
+                                const hasConSoportePending = pendingApplications.withSupport.includes(speciality.id);
                                 const isConSoporteDisabled = !isSystemNormal || hasConSoportePending;
 
                                 return (

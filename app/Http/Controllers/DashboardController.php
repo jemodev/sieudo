@@ -22,28 +22,26 @@ final class DashboardController extends Controller
         return Inertia::render('dashboard', [
             'specialities' => Inertia::defer(
                 fn () => app(GetGraduateSpecialities::class)(new GraduateSpecialitiesData($dni)),
+                'primary',
             ),
             'systemStatus' => Inertia::defer(
                 fn () => SystemStatus::query()->latest()->first()->system_status ?? 1,
+                'primary',
             ),
-            'pendingApplicationSpecialityIds' => Inertia::defer(
-                fn () => Application::query()
+            'pendingApplications' => Inertia::defer(function () use ($request) {
+                $pending = Application::query()
                     ->where('user_id', $request->user()->id)
-                    ->where('document_support', false)
                     ->where('status', '0')
-                    ->pluck('speciality_id')
-                    ->all(),
-            ),
-            'pendingApplicationWithSupportSpecialityIds' => Inertia::defer(
-                fn () => Application::query()
-                    ->where('user_id', $request->user()->id)
-                    ->where('document_support', true)
-                    ->where('status', '0')
-                    ->pluck('speciality_id')
-                    ->all(),
-            ),
+                    ->get(['speciality_id', 'document_support']);
+
+                return [
+                    'withoutSupport' => $pending->where('document_support', false)->pluck('speciality_id')->values(),
+                    'withSupport' => $pending->where('document_support', true)->pluck('speciality_id')->values(),
+                ];
+            }, 'primary'),
             'applicationsInProcess' => Inertia::defer(
                 fn () => app(GetApplicationsInProcess::class)($request->user()),
+                'secondary',
             ),
         ]);
     }

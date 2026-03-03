@@ -84,7 +84,7 @@ it('loads the latest systemStatus value', function () {
         );
 });
 
-it('returns empty pending application speciality ids when user has no applications', function () {
+it('returns empty pending applications when user has no pending applications', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user)
@@ -92,12 +92,13 @@ it('returns empty pending application speciality ids when user has no applicatio
         ->assertInertia(fn (Assert $page) => $page
             ->component('dashboard')
             ->loadDeferredProps(fn (Assert $deferred) => $deferred
-                ->where('pendingApplicationSpecialityIds', []),
+                ->where('pendingApplications.withoutSupport', [])
+                ->where('pendingApplications.withSupport', []),
             ),
         );
 });
 
-it('returns speciality id in pending list when user has active non-support application', function () {
+it('returns speciality id in pending without support when user has active non-support application', function () {
     $user = User::factory()->create();
     $speciality = Speciality::factory()->create();
     Application::factory()->create([
@@ -112,26 +113,14 @@ it('returns speciality id in pending list when user has active non-support appli
         ->assertInertia(fn (Assert $page) => $page
             ->component('dashboard')
             ->loadDeferredProps(fn (Assert $deferred) => $deferred
-                ->has('pendingApplicationSpecialityIds', 1)
-                ->where('pendingApplicationSpecialityIds.0', $speciality->id),
+                ->has('pendingApplications.withoutSupport', 1)
+                ->where('pendingApplications.withoutSupport.0', $speciality->id)
+                ->where('pendingApplications.withSupport', []),
             ),
         );
 });
 
-it('returns empty pending with-support application speciality ids when user has no applications', function () {
-    $user = User::factory()->create();
-
-    $this->actingAs($user)
-        ->get(route('dashboard'))
-        ->assertInertia(fn (Assert $page) => $page
-            ->component('dashboard')
-            ->loadDeferredProps(fn (Assert $deferred) => $deferred
-                ->where('pendingApplicationWithSupportSpecialityIds', []),
-            ),
-        );
-});
-
-it('returns speciality id in pending with-support list when user has active support application', function () {
+it('returns speciality id in pending with support when user has active support application', function () {
     $user = User::factory()->create();
     $speciality = Speciality::factory()->create();
     Application::factory()->create([
@@ -146,8 +135,9 @@ it('returns speciality id in pending with-support list when user has active supp
         ->assertInertia(fn (Assert $page) => $page
             ->component('dashboard')
             ->loadDeferredProps(fn (Assert $deferred) => $deferred
-                ->has('pendingApplicationWithSupportSpecialityIds', 1)
-                ->where('pendingApplicationWithSupportSpecialityIds.0', $speciality->id),
+                ->has('pendingApplications.withSupport', 1)
+                ->where('pendingApplications.withSupport.0', $speciality->id)
+                ->where('pendingApplications.withoutSupport', []),
             ),
         );
 });
