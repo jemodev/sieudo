@@ -101,26 +101,41 @@ export default function DocumentRequestSection({ specialities, systemStatus, pen
                                 const isConSoporteDisabled = !isSystemNormal || hasConSoportePending;
 
                                 return (
-                                    <TableRow key={speciality.id} className="db-row transition-colors">
+                                    <TableRow
+                                        key={speciality.id}
+                                        className="db-row transition-colors"
+                                    >
                                         <TableCell className="max-w-md px-7 py-4 font-medium text-card-foreground">
                                             {speciality.name}
                                         </TableCell>
-                                        <TableCell className="px-7 py-4 text-muted-foreground">
+                                        <TableCell
+                                            className="max-w-xl truncate px-7 py-4 text-muted-foreground"
+                                            title={speciality.title}
+                                        >
                                             {speciality.title}
                                         </TableCell>
                                         <TableCell className="px-7 py-4">
-                                            {specialityTypeBadge(speciality.type)}
+                                            {specialityTypeBadge(
+                                                speciality.type,
+                                            )}
                                         </TableCell>
                                         <TableCell className="px-7 py-4 text-right">
                                             <div className="flex items-center justify-end gap-2">
                                                 <Link
-                                                    href={create(speciality.id).url}
+                                                    href={
+                                                        create(speciality.id)
+                                                            .url
+                                                    }
                                                     className={`inline-flex h-8 items-center justify-center rounded-lg border border-border bg-background px-3.5 text-xs font-medium text-foreground/70 transition-colors hover:bg-muted hover:text-foreground ${isSinSoporteDisabled ? 'pointer-events-none opacity-40' : ''}`}
                                                 >
                                                     Sin Soporte
                                                 </Link>
                                                 <Link
-                                                    href={createWithSupport(speciality.id).url}
+                                                    href={
+                                                        createWithSupport(
+                                                            speciality.id,
+                                                        ).url
+                                                    }
                                                     className={`db-btn-primary inline-flex h-8 items-center justify-center rounded-lg bg-primary px-3.5 text-xs font-semibold text-primary-foreground transition-all hover:bg-primary/90 ${isConSoporteDisabled ? 'pointer-events-none opacity-40' : ''}`}
                                                 >
                                                     Con Soporte
