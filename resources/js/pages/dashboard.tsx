@@ -79,41 +79,7 @@ const documentosProcesados = [
 export default function Dashboard({ specialities, systemStatus, pendingApplicationSpecialityIds }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Dashboard">
-                <link rel="preconnect" href="https://fonts.googleapis.com" />
-                <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-                <link
-                    href="https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
-                    rel="stylesheet"
-                />
-                <style>{`
-                    .db-heading {
-                        font-family: 'Syne', var(--font-sans);
-                        letter-spacing: -0.02em;
-                    }
-                    .db-mono {
-                        font-family: 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
-                    }
-                    .db-section {
-                        opacity: 0;
-                        animation: db-rise 0.42s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-                    }
-                    .db-section:nth-child(1) { animation-delay: 0.04s; }
-                    .db-section:nth-child(2) { animation-delay: 0.11s; }
-                    .db-section:nth-child(3) { animation-delay: 0.18s; }
-                    .db-section:nth-child(4) { animation-delay: 0.25s; }
-                    @keyframes db-rise {
-                        from { opacity: 0; transform: translateY(7px); }
-                        to   { opacity: 1; transform: translateY(0); }
-                    }
-                    .db-row:hover td {
-                        background-color: color-mix(in oklch, var(--color-primary) 4%, var(--color-background));
-                    }
-                    .db-btn-primary:hover {
-                        box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-primary) 28%, transparent);
-                    }
-                `}</style>
-            </Head>
+            <Head title="Dashboard" />
 
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto p-5">
 

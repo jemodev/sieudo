@@ -1,5 +1,10 @@
 import { Head, useForm } from '@inertiajs/react';
-import { CheckCircle2, FileText, ShoppingCart } from 'lucide-react';
+import {
+    AlertCircle,
+    CheckCircle2,
+    FileCheckIcon,
+    FileText,
+} from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { store } from '@/actions/App/Http/Controllers/ApplicationController';
@@ -71,6 +76,7 @@ export default function CreateWithoutSupport({ speciality, documentTypes, gradua
 
     const total = selectedTypes.reduce((sum, dt) => sum + dt.price, 0);
     const selectedCount = form.data.document_codes.length;
+    const documentCount = documentTypes.length;
 
     const toggleCode = (code: string, checked: boolean) => {
         if (checked) {
@@ -97,34 +103,66 @@ export default function CreateWithoutSupport({ speciality, documentTypes, gradua
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto p-5">
                 <section className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
                     {/* Header */}
-                    <header className="flex items-start gap-3.5 border-b border-border px-7 py-5">
-                        <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                            <FileText className="h-4 w-4" />
-                        </div>
-                        <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                                <h3 className="text-[0.9375rem] font-semibold text-card-foreground">
-                                    {speciality.name}
-                                </h3>
-                                <Badge variant={speciality.type === 2 ? 'secondary' : 'outline'}>
-                                    {speciality.type === 2 ? 'Postgrado' : 'Pregrado'}
-                                </Badge>
+                    <header className="border-b border-border px-7 py-5">
+                        <div className="flex items-start gap-4">
+                            <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/15">
+                                <FileText className="h-4.5 w-4.5" />
                             </div>
-                            <p className="mt-0.5 text-sm text-muted-foreground">
-                                {speciality.title} — Seleccione los documentos que necesita solicitar.
-                            </p>
+                            <div className="min-w-0 flex-1">
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <h2 className="cws-heading text-base font-semibold text-card-foreground">
+                                        {speciality.name}
+                                    </h2>
+                                    <Badge
+                                        variant={
+                                            speciality.type === 2
+                                                ? 'secondary'
+                                                : 'outline'
+                                        }
+                                        className="shrink-0"
+                                    >
+                                        {speciality.type === 2
+                                            ? 'Postgrado'
+                                            : 'Pregrado'}
+                                    </Badge>
+                                    <span className="cws-mono shrink-0 rounded-md bg-muted px-2 py-0.5 text-[0.6875rem] text-muted-foreground">
+                                        {speciality.new_code}
+                                    </span>
+                                </div>
+                                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                                    {speciality.title}
+                                </p>
+                                <p className="mt-0.5 text-xs text-muted-foreground/60">
+                                    Marque los documentos que desea solicitar y
+                                    confirme la operación.
+                                </p>
+                            </div>
                         </div>
                     </header>
 
+                    {/* Body */}
                     {documentTypes.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center gap-2 px-7 py-12 text-center">
-                            <FileText className="h-8 w-8 text-muted-foreground/40" />
-                            <p className="text-sm font-medium text-muted-foreground">
-                                No hay documentos disponibles para esta especialidad.
-                            </p>
-                            <p className="text-xs text-muted-foreground/70">
-                                Contacte a Control de Estudios si cree que esto es un error.
-                            </p>
+                        <div className="flex flex-col items-center justify-center gap-3 px-7 py-16 text-center">
+                            <div className="relative">
+                                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
+                                    <FileText className="h-6 w-6 text-muted-foreground/40" />
+                                </div>
+                                <div className="absolute -right-1 -bottom-1 flex h-5 w-5 items-center justify-center rounded-full bg-border">
+                                    <AlertCircle className="h-3 w-3 text-muted-foreground/60" />
+                                </div>
+                            </div>
+                            <div>
+                                <p className="text-sm font-medium text-card-foreground">
+                                    Sin documentos disponibles
+                                </p>
+                                <p className="mt-0.5 text-xs text-muted-foreground">
+                                    No hay tipos de documento configurados para
+                                    esta especialidad.
+                                    <br />
+                                    Contacte a Control de Estudios si cree que
+                                    esto es un error.
+                                </p>
+                            </div>
                         </div>
                     ) : (
                         <>
@@ -133,43 +171,63 @@ export default function CreateWithoutSupport({ speciality, documentTypes, gradua
                                     <TableHeader>
                                         <TableRow className="border-b border-border bg-primary/3 hover:bg-primary/3">
                                             <TableHead className="w-12 px-7 py-3" />
-                                            <TableHead className="px-7 py-3 text-[0.6875rem] font-semibold uppercase tracking-[0.07em] text-primary/70">
+                                            <TableHead className="px-4 py-3 text-[0.6875rem] font-semibold tracking-[0.07em] text-primary/70 uppercase">
                                                 Cód.
                                             </TableHead>
-                                            <TableHead className="px-7 py-3 text-[0.6875rem] font-semibold uppercase tracking-[0.07em] text-primary/70">
+                                            <TableHead className="px-7 py-3 text-[0.6875rem] font-semibold tracking-[0.07em] text-primary/70 uppercase">
                                                 Descripción
                                             </TableHead>
-                                            <TableHead className="px-7 py-3 text-right text-[0.6875rem] font-semibold uppercase tracking-[0.07em] text-primary/70">
+                                            <TableHead className="px-7 py-3 text-right text-[0.6875rem] font-semibold tracking-[0.07em] text-primary/70 uppercase">
                                                 Precio
                                             </TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody className="divide-y divide-border">
                                         {documentTypes.map((dt) => {
-                                            const isChecked = form.data.document_codes.includes(dt.code);
+                                            const isChecked =
+                                                form.data.document_codes.includes(
+                                                    dt.code,
+                                                );
                                             return (
                                                 <TableRow
                                                     key={dt.id}
                                                     data-selected={isChecked}
-                                                    className="cursor-pointer transition-colors hover:bg-muted/40 data-[selected=true]:bg-primary/5 data-[selected=true]:hover:bg-primary/8"
-                                                    onClick={() => toggleCode(dt.code, !isChecked)}
+                                                    className="cws-row"
+                                                    onClick={() =>
+                                                        toggleCode(
+                                                            dt.code,
+                                                            !isChecked,
+                                                        )
+                                                    }
                                                 >
                                                     <TableCell className="px-7 py-4">
                                                         <Checkbox
                                                             checked={isChecked}
-                                                            onCheckedChange={(checked) =>
-                                                                toggleCode(dt.code, checked === true)
+                                                            onCheckedChange={(
+                                                                checked,
+                                                            ) =>
+                                                                toggleCode(
+                                                                    dt.code,
+                                                                    checked ===
+                                                                        true,
+                                                                )
                                                             }
-                                                            onClick={(e) => e.stopPropagation()}
+                                                            onClick={(e) =>
+                                                                e.stopPropagation()
+                                                            }
                                                         />
                                                     </TableCell>
-                                                    <TableCell className="px-7 py-4 font-mono text-xs text-muted-foreground">
+                                                    <TableCell className="cws-mono px-4 py-4 text-xs text-muted-foreground">
                                                         {dt.code}
                                                     </TableCell>
-                                                    <TableCell className="px-7 py-4 font-medium text-card-foreground">
+                                                    <TableCell
+                                                        className={`px-7 py-4 transition-colors ${isChecked ? 'font-semibold text-card-foreground' : 'font-medium text-card-foreground/80'}`}
+                                                    >
                                                         {dt.description}
                                                     </TableCell>
-                                                    <TableCell className="px-7 py-4 text-right font-mono text-sm text-card-foreground">
+                                                    <TableCell
+                                                        className={`cws-mono px-7 py-4 text-right text-sm transition-colors ${isChecked ? 'font-semibold text-card-foreground' : 'text-muted-foreground'}`}
+                                                    >
                                                         {formatPrice(dt.price)}
                                                     </TableCell>
                                                 </TableRow>
@@ -180,27 +238,42 @@ export default function CreateWithoutSupport({ speciality, documentTypes, gradua
                             </div>
 
                             {/* Footer */}
-                            <div className="flex items-center justify-between border-t border-border px-7 py-4">
-                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <div className="flex items-center justify-between gap-4 border-t border-border bg-muted/20 px-7 py-4">
+                                {/* Left: selection status */}
+                                <div className="flex items-center gap-2.5 text-sm">
                                     {selectedCount > 0 ? (
                                         <>
-                                            <ShoppingCart className="h-3.5 w-3.5 text-primary" />
-                                            <span>
-                                                <span className="font-semibold text-card-foreground">{selectedCount}</span>
-                                                {' '}documento{selectedCount !== 1 ? 's' : ''} seleccionado{selectedCount !== 1 ? 's' : ''}
+                                            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[0.625rem] font-bold text-primary-foreground">
+                                                {selectedCount}
+                                            </span>
+                                            <span className="text-muted-foreground">
+                                                de{' '}
+                                                <span className="font-medium text-card-foreground">
+                                                    {documentCount}
+                                                </span>{' '}
+                                                documento
+                                                {documentCount !== 1 ? 's' : ''}{' '}
+                                                seleccionado
+                                                {selectedCount !== 1 ? 's' : ''}
                                             </span>
                                         </>
                                     ) : (
-                                        'Seleccione al menos un documento'
+                                        <span className="flex items-center gap-1.5 text-muted-foreground">
+                                            <FileCheckIcon className="h-3.5 w-3.5" />
+                                            Seleccione al menos un documento
+                                            para continuar
+                                        </span>
                                     )}
                                 </div>
-                                <div className="flex items-center gap-4">
+
+                                {/* Right: total + action */}
+                                <div className="flex items-center gap-5">
                                     {selectedCount > 0 && (
                                         <div className="text-right">
-                                            <span className="block text-[0.6875rem] font-semibold uppercase tracking-[0.07em] text-muted-foreground">
+                                            <span className="block text-[0.625rem] font-semibold tracking-[0.08em] text-muted-foreground uppercase">
                                                 Total
                                             </span>
-                                            <span className="font-mono text-sm font-semibold text-card-foreground">
+                                            <span className="cws-mono text-base font-semibold text-card-foreground">
                                                 {formatPrice(total)}
                                             </span>
                                         </div>
@@ -208,7 +281,7 @@ export default function CreateWithoutSupport({ speciality, documentTypes, gradua
                                     <button
                                         onClick={() => setConfirmOpen(true)}
                                         disabled={selectedCount === 0}
-                                        className="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-40"
+                                        className="cws-btn-confirm inline-flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-40"
                                     >
                                         Confirmar solicitud
                                     </button>
@@ -219,42 +292,62 @@ export default function CreateWithoutSupport({ speciality, documentTypes, gradua
                 </section>
             </div>
 
+            {/* Confirmation dialog */}
             <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
                 <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                        <DialogTitle>Confirmar solicitud</DialogTitle>
+                    <DialogHeader className="pb-1">
+                        <DialogTitle className="cws-heading text-base">
+                            Confirmar solicitud
+                        </DialogTitle>
                     </DialogHeader>
 
-                    <div className="space-y-4 text-sm">
-                        {/* Graduate & speciality info */}
-                        <div className="rounded-lg border border-border bg-muted/40 p-4 space-y-1.5">
-                            <div className="flex justify-between gap-2">
-                                <span className="text-muted-foreground">Egresado</span>
-                                <span className="font-medium text-card-foreground">{graduate.name}</span>
+                    <div className="space-y-3 text-sm">
+                        {/* Graduate & speciality */}
+                        <div className="divide-y divide-border rounded-lg border border-border">
+                            <div className="flex items-center justify-between px-3.5 py-2.5">
+                                <span className="text-xs text-muted-foreground">
+                                    Egresado
+                                </span>
+                                <span className="font-medium text-card-foreground">
+                                    {graduate.name}
+                                </span>
                             </div>
-                            <div className="flex justify-between gap-2">
-                                <span className="text-muted-foreground">C.I.</span>
-                                <span className="font-mono text-card-foreground">{graduate.dni}</span>
+                            <div className="flex items-center justify-between px-3.5 py-2.5">
+                                <span className="text-xs text-muted-foreground">
+                                    C.I.
+                                </span>
+                                <span className="cws-mono text-card-foreground">
+                                    {graduate.dni}
+                                </span>
                             </div>
-                            <div className="flex justify-between gap-2">
-                                <span className="text-muted-foreground">Especialidad</span>
-                                <span className="text-right font-medium text-card-foreground">{speciality.name}</span>
+                            <div className="flex items-start justify-between gap-3 px-3.5 py-2.5">
+                                <span className="text-xs text-muted-foreground">
+                                    Especialidad
+                                </span>
+                                <span className="text-right font-medium text-card-foreground">
+                                    {speciality.name}
+                                </span>
                             </div>
                         </div>
 
-                        {/* Document list */}
-                        <div className="space-y-1.5">
-                            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                                Documentos seleccionados
+                        {/* Documents */}
+                        <div>
+                            <p className="mb-1.5 px-0.5 text-[0.6875rem] font-semibold tracking-wider text-muted-foreground uppercase">
+                                Documentos solicitados
                             </p>
                             <div className="divide-y divide-border rounded-lg border border-border">
                                 {selectedTypes.map((dt) => (
-                                    <div key={dt.id} className="flex items-center justify-between px-3 py-2.5">
-                                        <div className="flex items-center gap-2">
-                                            <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-primary/60" />
-                                            <span className="text-card-foreground">{dt.description}</span>
+                                    <div
+                                        key={dt.id}
+                                        className="flex items-center justify-between gap-3 px-3.5 py-2.5"
+                                    >
+                                        <div className="flex min-w-0 items-center gap-2">
+                                            <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-primary/50" />
+                                            <span className="truncate text-card-foreground">
+                                                {dt.description}
+                                            </span>
                                         </div>
-                                        <span className="font-mono text-xs text-muted-foreground">
+                                        <span className="cws-mono shrink-0 text-xs text-muted-foreground">
                                             {formatPrice(dt.price)}
                                         </span>
                                     </div>
@@ -263,15 +356,24 @@ export default function CreateWithoutSupport({ speciality, documentTypes, gradua
                         </div>
 
                         {/* Total */}
-                        <div className="flex items-center justify-between rounded-lg bg-primary/5 px-4 py-3 ring-1 ring-primary/10">
-                            <span className="font-semibold text-card-foreground">Total a pagar</span>
-                            <span className="font-mono font-semibold text-card-foreground">
+                        <div className="flex items-center justify-between rounded-lg border border-primary/20 bg-primary/5 px-3.5 py-3">
+                            <span className="font-semibold text-card-foreground">
+                                Total a pagar
+                            </span>
+                            <span className="cws-mono text-base font-bold text-card-foreground">
                                 {formatPrice(total)}
                             </span>
                         </div>
+
+                        {/* Note */}
+                        <p className="flex items-start gap-1.5 rounded-md bg-muted/60 px-3 py-2.5 text-xs text-muted-foreground">
+                            <AlertCircle className="mt-px h-3.5 w-3.5 shrink-0" />
+                            Deberá realizar el pago en Caja una vez que la
+                            solicitud sea procesada por Control de Estudios.
+                        </p>
                     </div>
 
-                    <DialogFooter>
+                    <DialogFooter className="pt-1">
                         <button
                             onClick={() => setConfirmOpen(false)}
                             className="inline-flex h-9 items-center justify-center rounded-lg border border-border bg-background px-4 text-sm font-medium text-foreground/70 transition-colors hover:bg-muted hover:text-foreground"
@@ -281,7 +383,7 @@ export default function CreateWithoutSupport({ speciality, documentTypes, gradua
                         <button
                             onClick={handleConfirm}
                             disabled={form.processing}
-                            className="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-40"
+                            className="cws-btn-confirm inline-flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-40"
                         >
                             {form.processing ? 'Enviando...' : 'Confirmar'}
                         </button>
