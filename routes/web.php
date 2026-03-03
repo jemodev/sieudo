@@ -32,6 +32,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::post('applications/without-support/{speciality}', [ApplicationController::class, 'store'])
         ->name('applications.without-support.store');
+
+    Route::get('applications/with-support/{speciality}', [ApplicationController::class, 'createWithSupport'])
+        ->name('applications.with-support.create');
+
+    Route::post('applications/with-support/{speciality}', [ApplicationController::class, 'storeWithSupport'])
+        ->name('applications.with-support.store');
 });
 
 require __DIR__.'/settings.php';

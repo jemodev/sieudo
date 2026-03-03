@@ -33,6 +33,14 @@ final class DashboardController extends Controller
                     ->pluck('speciality_id')
                     ->all(),
             ),
+            'pendingApplicationWithSupportSpecialityIds' => Inertia::defer(
+                fn () => Application::query()
+                    ->where('user_id', $request->user()->id)
+                    ->where('document_support', true)
+                    ->where('status', '0')
+                    ->pluck('speciality_id')
+                    ->all(),
+            ),
         ]);
     }
 }

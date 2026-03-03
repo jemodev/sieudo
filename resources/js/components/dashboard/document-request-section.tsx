@@ -1,6 +1,6 @@
 import { Link } from '@inertiajs/react';
 import { AlertTriangle, FileText } from 'lucide-react';
-import { create } from '@/actions/App/Http/Controllers/ApplicationController';
+import { create, createWithSupport } from '@/actions/App/Http/Controllers/ApplicationController';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -25,6 +25,7 @@ interface Props {
     specialities: Speciality[];
     systemStatus: number;
     pendingApplicationSpecialityIds: number[];
+    pendingApplicationWithSupportSpecialityIds: number[];
 }
 
 const SYSTEM_STATUS_NORMAL = 1;
@@ -38,7 +39,7 @@ const specialityTypeBadge = (type: number) => {
     );
 }
 
-export default function DocumentRequestSection({ specialities, systemStatus, pendingApplicationSpecialityIds }: Props) {
+export default function DocumentRequestSection({ specialities, systemStatus, pendingApplicationSpecialityIds, pendingApplicationWithSupportSpecialityIds }: Props) {
     const isSystemNormal = systemStatus === SYSTEM_STATUS_NORMAL;
 
     return (
@@ -92,6 +93,8 @@ export default function DocumentRequestSection({ specialities, systemStatus, pen
                             {specialities.map((speciality) => {
                                 const hasPendingApplication = pendingApplicationSpecialityIds.includes(speciality.id);
                                 const isSinSoporteDisabled = !isSystemNormal || hasPendingApplication;
+                                const hasConSoportePending = pendingApplicationWithSupportSpecialityIds.includes(speciality.id);
+                                const isConSoporteDisabled = !isSystemNormal || hasConSoportePending;
 
                                 return (
                                     <TableRow key={speciality.id} className="db-row transition-colors">
@@ -112,12 +115,12 @@ export default function DocumentRequestSection({ specialities, systemStatus, pen
                                                 >
                                                     Sin Soporte
                                                 </Link>
-                                                <button
-                                                    disabled={!isSystemNormal}
-                                                    className="db-btn-primary inline-flex h-8 items-center justify-center rounded-lg bg-primary px-3.5 text-xs font-semibold text-primary-foreground transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-40"
+                                                <Link
+                                                    href={createWithSupport(speciality.id).url}
+                                                    className={`db-btn-primary inline-flex h-8 items-center justify-center rounded-lg bg-primary px-3.5 text-xs font-semibold text-primary-foreground transition-all hover:bg-primary/90 ${isConSoporteDisabled ? 'pointer-events-none opacity-40' : ''}`}
                                                 >
                                                     Con Soporte
-                                                </button>
+                                                </Link>
                                             </div>
                                         </TableCell>
                                     </TableRow>

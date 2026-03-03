@@ -117,3 +117,37 @@ it('returns speciality id in pending list when user has active non-support appli
             ),
         );
 });
+
+it('returns empty pending with-support application speciality ids when user has no applications', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->get(route('dashboard'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('dashboard')
+            ->loadDeferredProps(fn (Assert $deferred) => $deferred
+                ->where('pendingApplicationWithSupportSpecialityIds', []),
+            ),
+        );
+});
+
+it('returns speciality id in pending with-support list when user has active support application', function () {
+    $user = User::factory()->create();
+    $speciality = Speciality::factory()->create();
+    Application::factory()->create([
+        'user_id' => $user->id,
+        'speciality_id' => $speciality->id,
+        'document_support' => true,
+        'status' => '0',
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('dashboard'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('dashboard')
+            ->loadDeferredProps(fn (Assert $deferred) => $deferred
+                ->has('pendingApplicationWithSupportSpecialityIds', 1)
+                ->where('pendingApplicationWithSupportSpecialityIds.0', $speciality->id),
+            ),
+        );
+});
