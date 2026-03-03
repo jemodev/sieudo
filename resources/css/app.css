@@ -209,3 +209,30 @@
 .cws-btn-confirm:not(:disabled):hover {
     box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-primary) 28%, transparent);
 }
+
+/* ── Applications In Process ── */
+.aip-row {
+    cursor: pointer;
+    transition: background-color 0.12s ease;
+}
+
+.aip-row:hover td {
+    background-color: color-mix(in oklch, var(--color-primary) 4%, var(--color-background));
+}
+
+.aip-row[data-expanded='true'] {
+    box-shadow: inset 3px 0 0 var(--color-primary);
+}
+
+.aip-row[data-expanded='true'] td {
+    background-color: color-mix(in oklch, var(--color-primary) 5%, var(--color-background));
+}
+
+.aip-row[data-expanded='true']:hover td {
+    background-color: color-mix(in oklch, var(--color-primary) 8%, var(--color-background));
+}
+
+.aip-docs-row td {
+    background-color: color-mix(in oklch, var(--color-primary) 3%, var(--color-background));
+    border-left: 3px solid color-mix(in oklch, var(--color-primary) 25%, transparent);
+}

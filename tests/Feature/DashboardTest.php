@@ -151,3 +151,65 @@ it('returns speciality id in pending with-support list when user has active supp
             ),
         );
 });
+
+it('returns empty applications in process when user has no active applications', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->get(route('dashboard'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('dashboard')
+            ->loadDeferredProps(fn (Assert $deferred) => $deferred
+                ->where('applicationsInProcess', []),
+            ),
+        );
+});
+
+it('returns applications in process for statuses 0 through 8', function () {
+    $user = User::factory()->create();
+    $speciality = Speciality::factory()->create();
+
+    foreach (['0', '1', '2', '3', '4', '5', '6', '7', '8'] as $status) {
+        Application::factory()->create([
+            'user_id' => $user->id,
+            'speciality_id' => $speciality->id,
+            'status' => $status,
+        ]);
+    }
+
+    $this->actingAs($user)
+        ->get(route('dashboard'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('dashboard')
+            ->loadDeferredProps(fn (Assert $deferred) => $deferred
+                ->has('applicationsInProcess', 9),
+            ),
+        );
+});
+
+it('does not include finalized applications (status 9+) in applications in process', function () {
+    $user = User::factory()->create();
+    $speciality = Speciality::factory()->create();
+
+    Application::factory()->create([
+        'user_id' => $user->id,
+        'speciality_id' => $speciality->id,
+        'status' => '9',
+    ]);
+
+    Application::factory()->create([
+        'user_id' => $user->id,
+        'speciality_id' => $speciality->id,
+        'status' => '1',
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('dashboard'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('dashboard')
+            ->loadDeferredProps(fn (Assert $deferred) => $deferred
+                ->has('applicationsInProcess', 1)
+                ->where('applicationsInProcess.0.status', '1'),
+            ),
+        );
+});

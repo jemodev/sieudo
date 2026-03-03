@@ -1,5 +1,8 @@
 import { Deferred, Head } from '@inertiajs/react';
 import { CheckCircle2, Clock, Download, FileText } from 'lucide-react';
+import ApplicationsInProcessSection from '@/components/dashboard/applications-in-process-section';
+import type { ApplicationInProcess } from '@/components/dashboard/applications-in-process-section';
+import ApplicationsInProcessSkeleton from '@/components/dashboard/applications-in-process-skeleton';
 import DocumentRequestSection from '@/components/dashboard/document-request-section';
 import DocumentRequestSkeleton from '@/components/dashboard/document-request-skeleton';
 import AppLayout from '@/layouts/app-layout';
@@ -20,22 +23,13 @@ interface Props {
     systemStatus: number;
     pendingApplicationSpecialityIds: number[];
     pendingApplicationWithSupportSpecialityIds: number[];
+    applicationsInProcess: ApplicationInProcess[];
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
         href: dashboard().url,
-    },
-];
-
-const solicitudesProceso = [
-    {
-        id: '24690453150920250003220',
-        especialidad: 'LICENCIADO EN INFORMATICA',
-        soporte: 'Sin soporte',
-        monto: '40,50 Bs',
-        estado: 'En proceso',
     },
 ];
 
@@ -77,13 +71,12 @@ const documentosProcesados = [
     },
 ];
 
-export default function Dashboard({ specialities, systemStatus, pendingApplicationSpecialityIds, pendingApplicationWithSupportSpecialityIds }: Props) {
+export default function Dashboard({ specialities, systemStatus, pendingApplicationSpecialityIds, pendingApplicationWithSupportSpecialityIds, applicationsInProcess }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
 
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto p-5">
-
                 {/* Solicitud de documentos */}
                 <section className="db-section overflow-hidden rounded-xl border border-border bg-card shadow-sm">
                     <header className="flex items-start gap-3.5 border-b border-border px-7 py-5">
@@ -95,22 +88,35 @@ export default function Dashboard({ specialities, systemStatus, pendingApplicati
                                 Solicitud de documentos
                             </h3>
                             <p className="mt-0.5 text-sm text-muted-foreground">
-                                Seleccione el tipo de soporte que requiere para su especialidad.
+                                Seleccione el tipo de soporte que requiere para
+                                su especialidad.
                             </p>
                         </div>
                     </header>
-                    <Deferred data={['specialities', 'systemStatus', 'pendingApplicationSpecialityIds', 'pendingApplicationWithSupportSpecialityIds']} fallback={<DocumentRequestSkeleton />}>
+                    <Deferred
+                        data={[
+                            'specialities',
+                            'systemStatus',
+                            'pendingApplicationSpecialityIds',
+                            'pendingApplicationWithSupportSpecialityIds',
+                        ]}
+                        fallback={<DocumentRequestSkeleton />}
+                    >
                         <DocumentRequestSection
                             specialities={specialities}
                             systemStatus={systemStatus}
-                            pendingApplicationSpecialityIds={pendingApplicationSpecialityIds}
-                            pendingApplicationWithSupportSpecialityIds={pendingApplicationWithSupportSpecialityIds}
+                            pendingApplicationSpecialityIds={
+                                pendingApplicationSpecialityIds
+                            }
+                            pendingApplicationWithSupportSpecialityIds={
+                                pendingApplicationWithSupportSpecialityIds
+                            }
                         />
                     </Deferred>
                 </section>
 
                 {/* Solicitudes en proceso */}
-                <section className="db-section overflow-hidden rounded-xl border border-border bg-card shadow-sm mt-4">
+                <section className="db-section mt-4 overflow-hidden rounded-xl border border-border bg-card shadow-sm">
                     <header className="flex items-center gap-3.5 border-b border-border px-7 py-5">
                         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
                             <Clock className="h-4 w-4" />
@@ -119,63 +125,13 @@ export default function Dashboard({ specialities, systemStatus, pendingApplicati
                             Solicitudes en proceso
                         </h3>
                     </header>
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left text-sm">
-                            <thead>
-                                <tr className="border-b border-border bg-primary/3">
-                                    <th className="px-7 py-3 text-[0.6875rem] font-semibold uppercase tracking-[0.07em] text-primary/70">
-                                        N° Solicitud
-                                    </th>
-                                    <th className="px-7 py-3 text-[0.6875rem] font-semibold uppercase tracking-[0.07em] text-primary/70">
-                                        Especialidad
-                                    </th>
-                                    <th className="px-7 py-3 text-[0.6875rem] font-semibold uppercase tracking-[0.07em] text-primary/70">
-                                        Soporte
-                                    </th>
-                                    <th className="px-7 py-3 text-[0.6875rem] font-semibold uppercase tracking-[0.07em] text-primary/70">
-                                        Monto
-                                    </th>
-                                    <th className="px-7 py-3 text-right text-[0.6875rem] font-semibold uppercase tracking-[0.07em] text-primary/70">
-                                        Estado
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-border">
-                                {solicitudesProceso.map((sol) => (
-                                    <tr
-                                        key={sol.id}
-                                        className="db-row transition-colors"
-                                    >
-                                        <td className="db-mono px-7 py-4 text-xs text-muted-foreground">
-                                            {sol.id}
-                                        </td>
-                                        <td
-                                            className="max-w-xs truncate px-7 py-4 font-medium text-card-foreground"
-                                            title={sol.especialidad}
-                                        >
-                                            {sol.especialidad}
-                                        </td>
-                                        <td className="px-7 py-4 text-muted-foreground">
-                                            {sol.soporte}
-                                        </td>
-                                        <td className="db-mono px-7 py-4 font-medium text-card-foreground">
-                                            {sol.monto}
-                                        </td>
-                                        <td className="px-7 py-4 text-right">
-                                            <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[0.6875rem] font-semibold text-amber-700">
-                                                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-400" />
-                                                {sol.estado}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                    <Deferred data="applicationsInProcess" fallback={<ApplicationsInProcessSkeleton />}>
+                        <ApplicationsInProcessSection applicationsInProcess={applicationsInProcess} />
+                    </Deferred>
                 </section>
 
                 {/* Documentos en validación */}
-                <section className="db-section overflow-hidden rounded-xl border border-border bg-card shadow-sm mt-4">
+                <section className="db-section mt-4 overflow-hidden rounded-xl border border-border bg-card shadow-sm">
                     <header className="flex items-center gap-3.5 border-b border-border px-7 py-5">
                         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
                             <CheckCircle2 className="h-4 w-4" />
@@ -188,19 +144,19 @@ export default function Dashboard({ specialities, systemStatus, pendingApplicati
                         <table className="w-full text-left text-sm">
                             <thead>
                                 <tr className="border-b border-border bg-primary/3">
-                                    <th className="px-7 py-3 text-[0.6875rem] font-semibold uppercase tracking-[0.07em] text-primary/70">
+                                    <th className="px-7 py-3 text-[0.6875rem] font-semibold tracking-[0.07em] text-primary/70 uppercase">
                                         Especialidad
                                     </th>
-                                    <th className="px-7 py-3 text-[0.6875rem] font-semibold uppercase tracking-[0.07em] text-primary/70">
+                                    <th className="px-7 py-3 text-[0.6875rem] font-semibold tracking-[0.07em] text-primary/70 uppercase">
                                         N° Documento
                                     </th>
-                                    <th className="px-7 py-3 text-[0.6875rem] font-semibold uppercase tracking-[0.07em] text-primary/70">
+                                    <th className="px-7 py-3 text-[0.6875rem] font-semibold tracking-[0.07em] text-primary/70 uppercase">
                                         Descripción
                                     </th>
-                                    <th className="px-7 py-3 text-[0.6875rem] font-semibold uppercase tracking-[0.07em] text-primary/70">
+                                    <th className="px-7 py-3 text-[0.6875rem] font-semibold tracking-[0.07em] text-primary/70 uppercase">
                                         Fecha
                                     </th>
-                                    <th className="px-7 py-3 text-[0.6875rem] font-semibold uppercase tracking-[0.07em] text-primary/70">
+                                    <th className="px-7 py-3 text-[0.6875rem] font-semibold tracking-[0.07em] text-primary/70 uppercase">
                                         Estatus
                                     </th>
                                 </tr>
@@ -220,7 +176,7 @@ export default function Dashboard({ specialities, systemStatus, pendingApplicati
                                         <td className="px-7 py-4 text-muted-foreground">
                                             {doc.descripcion}
                                         </td>
-                                        <td className="db-mono whitespace-nowrap px-7 py-4 text-xs text-muted-foreground">
+                                        <td className="db-mono px-7 py-4 text-xs whitespace-nowrap text-muted-foreground">
                                             {doc.fecha}
                                         </td>
                                         <td className="px-7 py-4">
@@ -237,7 +193,7 @@ export default function Dashboard({ specialities, systemStatus, pendingApplicati
                 </section>
 
                 {/* Documentos procesados */}
-                <section className="db-section overflow-hidden rounded-xl border border-border bg-card shadow-sm mt-4">
+                <section className="db-section mt-4 overflow-hidden rounded-xl border border-border bg-card shadow-sm">
                     <header className="flex items-center gap-3.5 border-b border-border px-7 py-5">
                         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                             <Download className="h-4 w-4" />
@@ -250,19 +206,19 @@ export default function Dashboard({ specialities, systemStatus, pendingApplicati
                         <table className="w-full text-left text-sm">
                             <thead>
                                 <tr className="border-b border-border bg-primary/3">
-                                    <th className="w-1/4 px-7 py-3 text-[0.6875rem] font-semibold uppercase tracking-[0.07em] text-primary/70">
+                                    <th className="w-1/4 px-7 py-3 text-[0.6875rem] font-semibold tracking-[0.07em] text-primary/70 uppercase">
                                         Especialidad
                                     </th>
-                                    <th className="px-7 py-3 text-[0.6875rem] font-semibold uppercase tracking-[0.07em] text-primary/70">
+                                    <th className="px-7 py-3 text-[0.6875rem] font-semibold tracking-[0.07em] text-primary/70 uppercase">
                                         N° Documento
                                     </th>
-                                    <th className="w-1/3 px-7 py-3 text-[0.6875rem] font-semibold uppercase tracking-[0.07em] text-primary/70">
+                                    <th className="w-1/3 px-7 py-3 text-[0.6875rem] font-semibold tracking-[0.07em] text-primary/70 uppercase">
                                         Descripción
                                     </th>
-                                    <th className="px-7 py-3 text-[0.6875rem] font-semibold uppercase tracking-[0.07em] text-primary/70">
+                                    <th className="px-7 py-3 text-[0.6875rem] font-semibold tracking-[0.07em] text-primary/70 uppercase">
                                         Fecha
                                     </th>
-                                    <th className="px-7 py-3 text-right text-[0.6875rem] font-semibold uppercase tracking-[0.07em] text-primary/70">
+                                    <th className="px-7 py-3 text-right text-[0.6875rem] font-semibold tracking-[0.07em] text-primary/70 uppercase">
                                         Acción
                                     </th>
                                 </tr>
@@ -282,7 +238,7 @@ export default function Dashboard({ specialities, systemStatus, pendingApplicati
                                         <td className="px-7 py-4 text-muted-foreground">
                                             {doc.descripcion}
                                         </td>
-                                        <td className="db-mono whitespace-nowrap px-7 py-4 text-xs text-muted-foreground">
+                                        <td className="db-mono px-7 py-4 text-xs whitespace-nowrap text-muted-foreground">
                                             {doc.fecha}
                                         </td>
                                         <td className="px-7 py-4 text-right">

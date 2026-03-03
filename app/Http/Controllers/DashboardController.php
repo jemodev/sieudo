@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Actions\GetApplicationsInProcess;
 use App\Actions\GetGraduateSpecialities;
 use App\DTOs\GraduateSpecialitiesData;
 use App\Models\Application;
@@ -40,6 +41,9 @@ final class DashboardController extends Controller
                     ->where('status', '0')
                     ->pluck('speciality_id')
                     ->all(),
+            ),
+            'applicationsInProcess' => Inertia::defer(
+                fn () => app(GetApplicationsInProcess::class)($request->user()),
             ),
         ]);
     }
